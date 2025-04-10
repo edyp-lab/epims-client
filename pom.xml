@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>fr.edyp.epims</groupId>
+    <artifactId>ePimsJavaClient</artifactId>
+    <version>2.7.3.2-SNAPSHOT</version>
+    <name>ePims-Client</name>
+
+    <!-- Reprise & simplification du build. Pas de necessite de dependre de  spring-boot (?) -->
+    <!-- Pose des probleme pour le remplacement des tags dans les fichiers resources  -->
+    <!-- Du coup necessite de specifier les versions pour les dependances  spring-boot & jackson dataformat-->
+<!--    <parent>-->
+<!--        <groupId>org.springframework.boot</groupId>-->
+<!--        <artifactId>spring-boot-starter-parent</artifactId>-->
+<!--        <version>2.4.3</version>-->
+<!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
+<!--    </parent>-->
+
+    <properties>
+        <shortVersion>2.7</shortVersion>
+        <longVersion>2.7.3.2</longVersion>
+        <os.classifier>windows-x64</os.classifier>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>fr.edyp.epims</groupId>
+            <artifactId>eP-Json</artifactId>
+            <version>3.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.swinglabs.swingx</groupId>
+            <artifactId>swingx-all</artifactId>
+            <version>1.6.5-1</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>2.4.3</version>
+
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+            <version>2.4.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.12.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
+        <!-- SFTP  -->
+        <dependency>
+            <groupId>net.schmizz</groupId>
+            <artifactId>sshj</artifactId>
+            <version>0.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>jre</artifactId>
+            <version>1.8.0_51</version>
+            <type>zip</type>
+            <classifier>${os.classifier}</classifier> <!-- Only for windows x64. To generate for linux ?-->
+        </dependency>
+
+    </dependencies>
+
+
+  <build>
+    <pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!-- Version inherited from ProFI-Pom -->
+                <configuration>
+                    <compilerVersion>1.8</compilerVersion>
+                    <source>1.8</source> <!-- Java version : 1.8 -->
+                    <target>1.8</target>
+                    <useIncrementalCompilation>false</useIncrementalCompilation> <!-- to avoid "endPosTable already set" error -->
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </pluginManagement>
+    <plugins>
+        <plugin>
+            <!-- Build an executable JAR -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>3.1.2</version>
+            <configuration>
+                <archive>
+                    <manifest>
+                        <addClasspath>true</addClasspath>
+                        <classpathPrefix>lib/</classpathPrefix>
+                        <mainClass>fr.epims.Main</mainClass>
+                    </manifest>
+                </archive>
+            </configuration>
+        </plugin>
+
+
+        <plugin>
+            <!-- This copies the JRE used to do the build from java.home - should be 32 bit Windows JRE -->
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+                <execution>
+                <id>copy-resources</id>
+                <phase>validate</phase>
+                <goals>
+                    <goal>resources</goal>
+                </goals>
+                <configuration>
+                    <overwrite>true</overwrite>
+                    <resources>
+                        <resource>
+                            <directory>${project.basedir}/src/main/resources</directory>
+                            <filtering>true</filtering>
+                            <includes>
+                                <include>epims.properties</include>
+                                <include>*.png</include>
+                                <include>*.jpg</include>
+                                <include>*.ico</include>
+                                <include>*.xml</include>
+                            </includes>
+                        </resource>
+                    </resources>
+                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                </configuration>
+                </execution>
+
+                <execution>
+                    <id>default-resources</id>
+                    <phase>none</phase>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.10</version>
+            <executions>
+                <execution>
+                    <id>copy-jre-dependencies</id>
+                    <phase>prepare-package</phase>
+                    <goals>
+                        <goal>unpack-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <includeTypes>zip</includeTypes>
+                        <outputDirectory>${project.build.directory}/</outputDirectory>
+                        <overWriteIfNewer>true</overWriteIfNewer>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>copy-dependencies</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <includeTypes>jar</includeTypes>
+                        <!-- <includeArtifactIds>zt-exec,zt-process-killer,logback-classic,slf4j-api</includeArtifactIds> -->
+                        <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        <overWriteIfNewer>true</overWriteIfNewer>
+                    </configuration>
+                </execution>
+
+            </executions>
+
+        </plugin>
+        <!-- Build exe file -->
+        <plugin>
+            <groupId>com.akathist.maven.plugins.launch4j</groupId>
+            <artifactId>launch4j-maven-plugin</artifactId>
+            <version>2.4.1</version>
+            <executions>
+                <execution>
+                    <id>l4j-clui</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>launch4j</goal>
+                    </goals>
+                    <configuration>
+                        <headerType>gui</headerType>
+                        <outfile>${project.build.directory}/epimsJavaEmb.exe</outfile>
+                        <jar>${project.build.directory}/${project.artifactId}-${project.version}.jar</jar>
+                        <errTitle>${project.name}</errTitle>
+                        <classPath>
+                            <mainClass>fr.epims.Main</mainClass>
+                            <addDependencies>false</addDependencies>
+                            <preCp>anything</preCp>
+                        </classPath>
+                        <icon>src/main/resources/epimsLogo64.ico</icon>
+                        <jre>
+                            <path>./java</path>
+                        </jre>
+                        <versionInfo>
+                            <fileVersion>${longVersion}</fileVersion>
+                            <txtFileVersion>${shortVersion}</txtFileVersion>
+                            <fileDescription>${project.name} ${project.version}</fileDescription>
+                            <copyright>EDyP</copyright>
+                            <productVersion>${longVersion}</productVersion>
+                            <txtProductVersion>${project.name} ${project.version}</txtProductVersion>
+                            <productName>${project.name}</productName>
+                            <internalName>${project.artifactId}</internalName>
+                            <originalFilename>${project.name}.exe</originalFilename>
+                        </versionInfo>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.3.0</version>
+            <configuration>
+                <descriptors>
+                    <descriptor>src/main/assembly/zip.xml</descriptor>
+                </descriptors>
+            </configuration>
+        </plugin>
+    </plugins>
+  </build>
+</project>
