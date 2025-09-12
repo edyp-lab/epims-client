@@ -41,7 +41,7 @@ public class StudyNode extends AbstractNode {
     private boolean m_displayStudyNomenclature;
 
     public StudyNode(StudyJson data) {
-        super(NodeTypes.STUDY, new Integer(data.getId()));
+        super(NodeTypes.STUDY, data.getId());
     }
 
     @Override

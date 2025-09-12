@@ -40,7 +40,7 @@ public class ProjectNode extends AbstractNode {
 
 
     public ProjectNode(ProjectJson data) {
-        super(NodeTypes.PROJECT, new Integer(data.getId()));
+        super(NodeTypes.PROJECT, data.getId());
     }
 
     @Override

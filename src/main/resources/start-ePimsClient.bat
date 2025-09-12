@@ -1,0 +1,1 @@
+.\java\bin\java -cp "lib/*;ePimsJavaClient-${pom.version}.jar;config" -Dlogback.configurationFile=logback.xml fr.epims.Main

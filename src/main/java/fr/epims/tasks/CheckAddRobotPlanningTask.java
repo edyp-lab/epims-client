@@ -21,7 +21,7 @@ import fr.epims.dataaccess.*;
 import fr.edyp.epims.json.RobotPlanningJson;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -64,9 +64,9 @@ public class CheckAddRobotPlanningTask extends AbstractAuthenticateDatabaseTask 
             ResponseEntity<String> response = restTemplate.exchange(URL,
                     HttpMethod.POST, requestEntity, String.class);
 
-            HttpStatus statusCode = response.getStatusCode();
+            HttpStatusCode statusCode = response.getStatusCode();
 
-            if (statusCode != HttpStatus.OK) {
+            if (!statusCode.is2xxSuccessful()) {
                 m_taskError = new TaskError("Failed for unknown reason");
                 return false;
             }

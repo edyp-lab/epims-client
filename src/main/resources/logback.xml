@@ -31,9 +31,9 @@
 
     <logger name="fr.epims" level="debug"/>
     <logger name="Epims.Client" level="debug"/>
+    <logger name="org.springframework.web" level="info"/>
 
-
-    <root level="warn">
+    <root level="info">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="RollingfileAppender" />
     </root>

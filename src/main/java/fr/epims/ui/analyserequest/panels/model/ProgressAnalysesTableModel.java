@@ -417,7 +417,7 @@ public class ProgressAnalysesTableModel extends AbstractTableModel implements De
         HashMap<String, String> valueMap = m_analysisKey2ValueMap.get(proAnalysisJson.getAnalyseId());
 
         if (valueMap == null) {
-            return new Float(0);
+            return 0f;
         }
 
         float total = 0;
@@ -450,7 +450,7 @@ public class ProgressAnalysesTableModel extends AbstractTableModel implements De
 
             row++;
         }
-        return new Float(total);
+        return total;
     }
 
     private String getValue(ProAnalysisJson proAnalysisJson, String key) {

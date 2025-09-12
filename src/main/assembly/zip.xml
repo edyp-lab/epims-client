@@ -9,10 +9,7 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/conf</directory>
-        </fileSet>
-        <fileSet>
-            <directory>${project.build.directory}/jre1.8</directory><!--WARNING If update version, should change here !  -->
+            <directory>${project.build.directory}/jdk</directory>
             <includes>
                 <include>**</include>
             </includes>
@@ -22,13 +19,17 @@
             <directory>${project.build.directory}/lib</directory>
             <outputDirectory>lib</outputDirectory>
         </fileSet>
-    </fileSets>
-    <files>
-        <file>
-            <source>${project.build.directory}/epimsJavaEmb.exe</source>
-            <outputDirectory>/</outputDirectory>
-        </file>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <includes>
+                <include>*.sh</include>
+                <include>*.bat</include>
+                <include>*.xml</include>
+                <include>*.jar</include>
+            </includes>
+            <outputDirectory/>
+        </fileSet>
 
-    </files>
+    </fileSets>
 
 </assembly>

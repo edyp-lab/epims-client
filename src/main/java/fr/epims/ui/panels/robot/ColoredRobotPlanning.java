@@ -98,7 +98,7 @@ public class ColoredRobotPlanning implements Serializable, Comparable<ColoredRob
             m_plateToStudyToColorIndexMap.put(plateName, studyToColorIndexMap);
         }
 
-        Integer studyId = new Integer(m_robotPlanning.getSample().getStudy());
+        Integer studyId = m_robotPlanning.getSample().getStudy();
         Integer colorKey = studyToColorIndexMap.get(studyId);
         if (colorKey == null) {
             colorKey = studyToColorIndexMap.size();

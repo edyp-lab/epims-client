@@ -21,7 +21,7 @@ import fr.epims.dataaccess.*;
 import fr.edyp.epims.json.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -113,9 +113,9 @@ public class AddContactTask extends AbstractAuthenticateDatabaseTask {
             ResponseEntity<ProgramJson> response = restTemplate.exchange(URL+"/"+m_programJson[0].getId(), //
                     HttpMethod.POST, requestEntity, ProgramJson.class);
 
-            HttpStatus statusCode = response.getStatusCode();
+            HttpStatusCode statusCode = response.getStatusCode();
 
-            if (statusCode != HttpStatus.OK) {
+            if (!statusCode.is2xxSuccessful()) {
                 m_taskError = new TaskError("Failed for unknown reason");
                 return false;
             }
@@ -152,9 +152,9 @@ public class AddContactTask extends AbstractAuthenticateDatabaseTask {
             ResponseEntity<ProjectJson> response = restTemplate.exchange(URL+"/"+m_projectJson[0].getId(), //
                     HttpMethod.POST, requestEntity, ProjectJson.class);
 
-            HttpStatus statusCode = response.getStatusCode();
+            HttpStatusCode statusCode = response.getStatusCode();
 
-            if (statusCode != HttpStatus.OK) {
+            if (!statusCode.is2xxSuccessful()) {
                 m_taskError = new TaskError("Failed for unknown reason");
                 return false;
             }
@@ -191,9 +191,9 @@ public class AddContactTask extends AbstractAuthenticateDatabaseTask {
             ResponseEntity<StudyJson> response = restTemplate.exchange(URL+"/"+m_studyJson[0].getId(), //
                     HttpMethod.POST, requestEntity, StudyJson.class);
 
-            HttpStatus statusCode = response.getStatusCode();
+            HttpStatusCode statusCode = response.getStatusCode();
 
-            if (statusCode != HttpStatus.OK) {
+            if (!statusCode.is2xxSuccessful()) {
                 m_taskError = new TaskError("Failed for unknown reason");
                 return false;
             }

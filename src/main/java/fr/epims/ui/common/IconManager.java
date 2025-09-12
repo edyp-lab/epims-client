@@ -20,6 +20,7 @@ package fr.epims.ui.common;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +36,8 @@ import javax.swing.ImageIcon;
  *
  */
 public class IconManager {
+
+    private static String IMAGES_PATH ="fr/epims/ui/images/";
 
     public enum IconType {
         EPIMS_LOGO16,
@@ -162,7 +165,7 @@ public class IconManager {
 
         ImageIcon icon = m_iconMap.get(iconType);
         if (icon == null) {
-            String path = getIconFilePath(iconType);
+            String path = IMAGES_PATH + getIconFilePath(iconType);
             icon = ImageUtilities.loadImageIcon(path, false);
             m_iconMap.put(iconType, icon);
         }

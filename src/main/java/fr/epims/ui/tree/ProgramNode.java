@@ -37,7 +37,7 @@ import java.util.Enumeration;
 public class ProgramNode extends AbstractNode {
 
     public ProgramNode(ProgramJson data) {
-            super(NodeTypes.PROGRAM, new Integer(data.getId()));
+            super(NodeTypes.PROGRAM, data.getId());
         }
 
     @Override

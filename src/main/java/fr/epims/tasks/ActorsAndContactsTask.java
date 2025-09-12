@@ -19,7 +19,6 @@ package fr.epims.tasks;
 
 import fr.epims.dataaccess.*;
 import fr.edyp.epims.json.ActorJson;
-import fr.edyp.epims.json.ProjectJson;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

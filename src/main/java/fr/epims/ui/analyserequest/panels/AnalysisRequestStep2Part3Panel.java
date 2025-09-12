@@ -212,7 +212,7 @@ public class AnalysisRequestStep2Part3Panel extends AbstractAnalyseRequestStepPa
                 String analysis = valueMap.get(PRICE_TABLE_ANALYSIS + key);
                 if (analysis == null) {
                     // put an empty line if needed
-                    values.add(new PriceTableModel.PriceItem("", new Integer(0), new Float(0), new Float(0)));
+                    values.add(new PriceTableModel.PriceItem("",0, 0f, 0f));
                     break;
                 }
                 Integer number = 0;
@@ -273,7 +273,7 @@ public class AnalysisRequestStep2Part3Panel extends AbstractAnalyseRequestStepPa
             m_importButton1.setKeysToExport(keysToExport1);
         } else {
             ArrayList<PriceTableModel.PriceItem> values = new ArrayList<>();
-            values.add(new PriceTableModel.PriceItem("", new Integer(0), new Float(0), new Float(0)));
+            values.add(new PriceTableModel.PriceItem("", 0, 0f, 0f));
             m_model.setValues(values);
 
             collaborativeStatusChanged(false, false);

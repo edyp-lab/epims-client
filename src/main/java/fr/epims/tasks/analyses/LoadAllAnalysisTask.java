@@ -57,9 +57,9 @@ public class LoadAllAnalysisTask extends AbstractAuthenticateDatabaseTask {
             ResponseEntity<AnalysisMapJson[]> response = restTemplate.exchange(URL, //
                     HttpMethod.POST, entity, AnalysisMapJson[].class);
 
-            HttpStatus statusCode = response.getStatusCode();
+            HttpStatusCode statusCode = response.getStatusCode();
 
-            if (statusCode != HttpStatus.OK) {
+            if (!statusCode.is2xxSuccessful()) {
                 m_taskError = new TaskError("Failed for unknown reason");
                 return false;
             }

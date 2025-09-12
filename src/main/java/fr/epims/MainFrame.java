@@ -34,6 +34,7 @@ import fr.epims.ui.panels.ActivitiesPanel;
 import fr.epims.ui.panels.admin.AdminPanel;
 import fr.epims.ui.analyserequest.panels.AnalysesRequestsPanel;
 import fr.epims.ui.panels.robot.RobotPanel;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
@@ -56,6 +57,7 @@ import java.util.Properties;
  */
 public class MainFrame extends JFrame {
 
+    private static final Logger log = LoggerFactory.getLogger(MainFrame.class);
     private static MainFrame m_singleton;
 
     private JLabel m_loginLabel;
@@ -315,14 +317,17 @@ public class MainFrame extends JFrame {
 
 
     public void connection() {
+        log.debug("START Connection");
         EpimsConnectionDialog connectionDialog = new EpimsConnectionDialog(this);
         connectionDialog.centerToWindow(this);
         connectionDialog.setVisible(true);
 
         if (connectionDialog.getButtonClicked() == DefaultDialog.BUTTON_OK) {
+            log.info("OK Connection");
             connect(connectionDialog.getLogin(), connectionDialog.getPassword());
 
         } else {
+            log.info("Cancel Connection");
             askForExit();
 
             connection();

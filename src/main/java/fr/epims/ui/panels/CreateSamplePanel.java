@@ -357,7 +357,7 @@ public class CreateSamplePanel extends JPanel {
                         ArrayList<String> samples = dialog.getSampleNames();
                         if (!samples.isEmpty()) {
                             int nbSamples = samples.size();
-                            numberSamplesSpinner.setValue(new Integer(nbSamples));
+                            numberSamplesSpinner.setValue(nbSamples);
                             m_defineSampleModel.setSamples(samples);
                         }
                     } finally {

@@ -23,7 +23,7 @@ import fr.edyp.epims.json.SampleJson;
 import fr.edyp.epims.json.StudyJson;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -66,9 +66,9 @@ public class AddFragmentTask extends AbstractAuthenticateDatabaseTask {
             ResponseEntity<SampleJson[]> response = restTemplate.exchange(URL,
                     HttpMethod.POST, requestEntity, SampleJson[].class);
 
-            HttpStatus statusCode = response.getStatusCode();
+            HttpStatusCode statusCode = response.getStatusCode();
 
-            if (statusCode != HttpStatus.OK) {
+            if (!statusCode.is2xxSuccessful()) {
                 m_taskError = new TaskError("Failed for unknown reason");
                 return false;
             }

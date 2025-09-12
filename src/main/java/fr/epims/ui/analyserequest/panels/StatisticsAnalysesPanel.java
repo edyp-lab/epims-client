@@ -71,7 +71,7 @@ public class StatisticsAnalysesPanel extends HourGlassPanel {
         int yearNow = Year.now().getValue();
         JComboBox<Integer> yearCombobox = new JComboBox<>();
         for (int year=yearNow-2;year<=yearNow;year++) {
-            yearCombobox.addItem(new Integer(year));
+            yearCombobox.addItem(year);
         }
         yearCombobox.setSelectedIndex(1); // we select previous year
 

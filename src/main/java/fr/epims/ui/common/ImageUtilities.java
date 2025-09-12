@@ -33,6 +33,7 @@ public class ImageUtilities {
 
     public static ImageIcon loadImageIcon(String path, boolean b) {
         try {
+
             return new ImageIcon(ImageIO.read(ClassLoader.getSystemResource(path)));
         } catch (IOException e) {
 
