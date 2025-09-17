@@ -44,7 +44,7 @@ public class LoadMgfFilesTask extends AbstractAuthenticateDatabaseTask {
     public LoadMgfFilesTask(AbstractDatabaseCallback callback, ArrayList<MgfFileInfoJson> mgfArrayList) {
         super(callback, new TaskInfo("Load list of MGF paths", false, null), TokenManager.TOKEN_EPIMS_SERVER);
 
-        URL = DataManager.getServerURL()+"/api/mgflist/";
+        URL = DataManager.getServerURL()+"/api/mgflist";
 
         m_mgfArrayList = mgfArrayList;
     }
