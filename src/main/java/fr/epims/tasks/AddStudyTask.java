@@ -18,6 +18,9 @@
 package fr.epims.tasks;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import fr.edyp.epims.util.error.ErrorResponse;
 import fr.epims.dataaccess.*;
 import fr.edyp.epims.json.ProjectJson;
 import fr.edyp.epims.json.StudyJson;
@@ -26,6 +29,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -61,13 +67,24 @@ public class AddStudyTask extends AbstractAuthenticateDatabaseTask {
             HttpEntity<StudyJson> requestEntity = new HttpEntity<>(m_studyJson[0], entity.getHeaders());
 
             // Send request with POST method, and Headers.
-            ResponseEntity<StudyJson> response = restTemplate.exchange(URL,
-                    HttpMethod.POST, requestEntity, StudyJson.class);
+            ResponseEntity<StudyJson> response = restTemplate.exchange(URL, HttpMethod.POST, requestEntity, StudyJson.class);
 
             HttpStatusCode statusCode = response.getStatusCode();
 
             if (!statusCode.is2xxSuccessful()) {
-                m_taskError = new TaskError("Failed for unknown reason");
+                //Error creating study. Try to get more information
+                try {
+                    ResponseEntity<ErrorResponse> errorResponse = restTemplate.exchange(URL, HttpMethod.POST, requestEntity, ErrorResponse.class);
+                    ErrorResponse error = errorResponse.getBody();
+                    if (error != null) {
+                        m_taskError = new TaskError("Error " + error.getErrorCode(),
+                                error.getMessage() + (error.getDetails() != null ? " - " + error.getDetails() : ""));
+                    } else {
+                        m_taskError = new TaskError("Failed for unknown reason");
+                    }
+                } catch (Exception e) {
+                    m_taskError = new TaskError("Failed for unknown reason");
+                }
                 return false;
             }
 
@@ -78,6 +95,18 @@ public class AddStudyTask extends AbstractAuthenticateDatabaseTask {
             m_studyJson[0] = studyJson;
 
 
+        } catch (HttpStatusCodeException sce) {
+            // This catches HTTP errors regardless of server implementation
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.registerModule(new JavaTimeModule());
+                ErrorResponse error = mapper.readValue(sce.getResponseBodyAsString(), ErrorResponse.class);
+                m_taskError = new TaskError("Error " + error.getErrorCode(), error.getMessage());
+            } catch (Exception parseException) {
+                parseException.printStackTrace();
+                m_taskError = new TaskError("HTTP " + sce.getStatusCode(), sce.getMessage());
+            }
+            return false;
         } catch (Exception e) {
             m_taskError = new TaskError(e);
             return false;

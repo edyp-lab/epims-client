@@ -151,7 +151,7 @@ public class StudiesListPanel extends JPanel implements RendererMouseCallback {
                             if (success) {
                                 DataManager.createStudy(arrStudy[0]);
                             } else {
-                                InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, "Server Error", "Server Error\n\nAction has been aborted.");
+                                InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, "Server Side Error", getTaskError().toString());
                                 infoDialog.centerToWindow(MainFrame.getMainWindow());
                                 infoDialog.setVisible(true);
                             }
