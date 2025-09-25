@@ -29,7 +29,7 @@
     </appender>
 
 
-    <logger name="fr.epims" level="debug"/>
+    <logger name="fr.edyp" level="debug"/>
     <logger name="Epims.Client" level="debug"/>
     <logger name="org.springframework.web" level="info"/>
 
