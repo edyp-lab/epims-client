@@ -20,6 +20,7 @@ package fr.edyp.epims.mgf;
 import fr.edyp.epims.json.MgfFileInfoJson;
 import fr.edyp.epims.MainFrame;
 import fr.edyp.epims.dataaccess.*;
+import fr.edyp.epims.tasks.mgf.GetInfoForMgfFileTask;
 import fr.edyp.epims.tasks.mgf.LoadMgfFilesTask;
 import fr.edyp.epims.tasks.mgf.StudyForMgfTask;
 import fr.edyp.epims.ui.common.*;
@@ -29,8 +30,6 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -69,7 +68,7 @@ public class MgfPanel extends HourGlassPanel {
     private FlatButton m_uploadToServerButton;
     private FlatButton m_deleteButton;
 
-    private DecoratedTable m_mgfTable;
+    private MgfTable m_mgfTable;
     private MgfTableModel m_model;
 
     private JTextField m_directoryTF;
@@ -91,7 +90,7 @@ public class MgfPanel extends HourGlassPanel {
         c.fill = GridBagConstraints.BOTH;
         c.insets = new java.awt.Insets(5, 5, 5, 5);
 
-        m_mgfTable = new DecoratedTable();
+        m_mgfTable = new MgfTable();
         m_model = new MgfTableModel();
         m_mgfTable.setModel(m_model);
 
@@ -136,85 +135,80 @@ public class MgfPanel extends HourGlassPanel {
         c.weighty = 1;
         add(tablePanel, c);
 
-        m_selectRootButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        m_selectRootButton.addActionListener(e -> {
 
-                String path = m_mgfRootTextField.getText().trim();
+            String rootPath = m_mgfRootTextField.getText().trim();
 
-                JFileChooser fchooser = new JFileChooser(path);
-                fchooser.setDialogTitle("Select Mgf Root Directory Path");
-                fchooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fchooser.setAcceptAllFileFilterUsed(false);
+            JFileChooser fChooser = new JFileChooser(rootPath);
+            fChooser.setDialogTitle("Select Mgf Root Directory Path");
+            fChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fChooser.setAcceptAllFileFilterUsed(false);
 
-                int result = fchooser.showOpenDialog(m_selectRootButton);
+            int result = fChooser.showOpenDialog(m_selectRootButton);
 
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File directory = fchooser.getSelectedFile();
-                    if (!directory.exists()) {
-                        InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, "Error", "Directory does not exist");
-                        infoDialog.centerToWindow(MainFrame.getMainWindow());
-                        infoDialog.setVisible(true);
-                        return;
-                    }
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File directory = fChooser.getSelectedFile();
+                if (!directory.exists()) {
+                    InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, "Error", "Directory does not exist");
+                    infoDialog.centerToWindow(MainFrame.getMainWindow());
+                    infoDialog.setVisible(true);
+                    return;
+                }
 
-                    String newPath = directory.getAbsolutePath();
-                    if (! newPath.equals(path)) {
-                        m_mgfRootTextField.setText(newPath);
-                        MgfFileManager.getSingleton().setRoot(directory);
-                        m_model.reset();
-                        loadData(true, true);
-                    }
+                String newPath = directory.getAbsolutePath();
+                if (! newPath.equals(rootPath)) {
+                    m_mgfRootTextField.setText(newPath);
+                    MgfFileManager.getSingleton().setRoot(directory);
+                    m_model.reset();
+                    loadData(true, true);
                 }
             }
         });
 
         ListSelectionModel selectionModel = m_mgfTable.getSelectionModel();
 
-        selectionModel.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) {
-                    return;
-                }
-                int[] rows = m_mgfTable.getSelectedRows();
-
-                long bytes = 0;
-
-                boolean uploadAllowed = rows.length>0;
-                boolean deleteAllowed = rows.length>0;
-                String info = "";
-
-                if (rows.length>0) {
-                    for (int row : rows) {
-                        row = m_mgfTable.convertRowIndexToModel(row);
-                        MgfFileInfo mgfFileInfo = m_model.getMgfFileInfo(row);
-                        MgfFileInfo.StatusEnum status = mgfFileInfo.getStatus();
-                        if (status != MgfFileInfo.StatusEnum.NO_INFO) {
-                            uploadAllowed = false;
-                        }
-                        if (status != MgfFileInfo.StatusEnum.FTP_DONE) {
-                            deleteAllowed = false;
-                        }
-
-                        bytes += mgfFileInfo.getFile().length();
-
-                    }
-
-                    double mo = ((double) bytes) / 1000000;
-                    String totalSizeMo = String.format("%.2f Mo", mo);
-
-                    if (rows.length == 1) {
-                        info = "1 file, size: " + totalSizeMo;
-                    } else {
-                        info = rows.length+" files, size: " + totalSizeMo;
-                    }
-                }
-
-                m_infoLabel.setText(info);
-
-                m_deleteButton.setEnabled(deleteAllowed);
-                m_uploadToServerButton.setEnabled(uploadAllowed);
+        selectionModel.addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) {
+                return;
             }
+            int[] rows = m_mgfTable.getSelectedRows();
+
+            long bytes = 0;
+
+            boolean uploadAllowed = rows.length>0;
+            boolean deleteAllowed = rows.length>0;
+            String info = "";
+
+            if (rows.length>0) {
+                for (int row : rows) {
+                    row = m_mgfTable.convertRowIndexToModel(row);
+                    MgfFileInfo mgfFileInfo = m_model.getMgfFileInfo(row);
+                    MgfFileInfo.StatusEnum status = mgfFileInfo.getStatus();
+                    if (status != MgfFileInfo.StatusEnum.NO_INFO) {
+                        uploadAllowed = false;
+                    }
+                    if (status != MgfFileInfo.StatusEnum.FTP_DONE) {
+                        deleteAllowed = false;
+                    }
+
+                    bytes += mgfFileInfo.getFile().length();
+
+                }
+
+                double mo = ((double) bytes) / 1000000;
+                String totalSizeMo = String.format("%.2f Mo", mo);
+
+                if (rows.length == 1) {
+                    info = "1 file, size: " + totalSizeMo;
+                } else {
+                    info = rows.length+" files, size: " + totalSizeMo;
+                }
+            }
+
+            m_infoLabel.setText(info);
+
+            m_deleteButton.setEnabled(deleteAllowed);
+            m_uploadToServerButton.setEnabled(uploadAllowed);
         });
 
     }
@@ -612,6 +606,30 @@ public class MgfPanel extends HourGlassPanel {
         }
     }
 
+
+    private void lookForNextIncompleteMgfInfo() {
+        boolean lookupDone = false;
+        for (MgfFileInfo mgfFileInfo : m_model.getMgfInfoList()) {
+
+            if (! mgfFileInfo.isStudySearched()) {
+
+                lookupDone = true;
+                GetInfoForMgfFileTask task = new GetInfoForMgfFileTask(new GetInfoCallback(mgfFileInfo, true), null, mgfFileInfo);
+                AccessDatabaseThread.getAccessDatabaseThread().addTask(task);
+                break;
+            }
+        }
+        if (!lookupDone) {
+            MgfFileManager.getSingleton().writeMgfDB( m_model.getMgfInfoList());
+        }
+    }
+
+    private void lookForSpecificMgfInfo(MgfFileInfo mgfFileInfo) {
+        GetInfoForMgfFileTask task = new GetInfoForMgfFileTask(new GetInfoCallback(mgfFileInfo, false), null, mgfFileInfo);
+        AccessDatabaseThread.getAccessDatabaseThread().addTask(task);
+        MgfFileManager.getSingleton().writeMgfDB( m_model.getMgfInfoList());
+    }
+
     private void lookForFirstUnknowStudy() {
         boolean lookupDone = false;
         for (MgfFileInfo mgfFileInfo : m_model.getMgfInfoList()) {
@@ -631,7 +649,7 @@ public class MgfPanel extends HourGlassPanel {
 
     private class StudyCallback extends AbstractDatabaseCallback {
 
-        private MgfFileInfo m_mgfFileInfo;
+        private final MgfFileInfo m_mgfFileInfo;
 
         public StudyCallback(MgfFileInfo mgfFileInfo) {
             m_mgfFileInfo = mgfFileInfo;
@@ -653,14 +671,41 @@ public class MgfPanel extends HourGlassPanel {
         }
     };
 
-    private class MgfCallback extends AbstractDatabaseCallback implements MgfFileManager.MgfFilesListener {
+    private class GetInfoCallback extends AbstractDatabaseCallback {
+
+        private final MgfFileInfo m_mgfFileInfo;
+        private final boolean m_continueSearch;
+
+        public GetInfoCallback(MgfFileInfo mgfFileInfo, boolean continueSearch) {
+            m_mgfFileInfo = mgfFileInfo;
+            m_continueSearch = continueSearch;
+        }
+
+        @Override
+        public boolean mustBeCalledInAWT() {
+            return true;
+        }
+
+        @Override
+        public void run(boolean success, long taskId, boolean finished) {
+            m_mgfFileInfo.setStudySearched();
+            if (success) {
+                m_model.dataChanged(m_mgfFileInfo);
+                if(m_continueSearch)
+                    lookForNextIncompleteMgfInfo();
+            }
+        }
+    }
+
+  private class MgfCallback extends AbstractDatabaseCallback implements MgfFileManager.MgfFilesListener {
 
         private int m_step = 0;
-        private int m_nbSteps;
+        private final int m_nbSteps;
 
-        private HashMap<String, ArrayList<File>> m_mgfMap = new HashMap<>();
+        // map mgf files by their relative path from root_path
+        private HashMap<String, ArrayList<File>> m_localMgfFilesByPath = new HashMap<>();
 
-        private ArrayList<MgfFileInfoJson> m_mgfArrayList = new ArrayList<>();
+        private final ArrayList<MgfFileInfoJson> m_mgfInfoFromDB = new ArrayList<>();
 
         public MgfCallback(int nbSteps) {
             m_nbSteps = nbSteps;
@@ -684,22 +729,30 @@ public class MgfPanel extends HourGlassPanel {
             setLoaded(m_id);
         }
 
+        // Used by server side task (LoadMgfFilesTask) to fill info from all mgf files already stored in database
         public ArrayList<MgfFileInfoJson> getMgfArrayList() {
-            return m_mgfArrayList;
+            return m_mgfInfoFromDB;
         }
 
+        // Called twice (nb step)
+        // By "Callback.run": once LoadMgfFilesTask is complete
+        // By mgfFilesMapLoaded: once all mgf from the local filesystem have been loaded
+        // Create list of MgfFileInfo for all local mgf files, get Extra Information and set as tablemodel data
         private void done() {
             m_step++;
             if (m_step == m_nbSteps) {
-                // informations from database and files are loaded
+                // information from the server side and the local file system are loaded
+                // (or less depending on nbStep, currently always both)
 
+                // Last Folder in Path -> {set of mgf filename} from mgf from server
                 HashMap<String, HashSet<String>> mgfOnServerMap = new HashMap<>();
-                for (MgfFileInfoJson mgfFileInfoJson : m_mgfArrayList) {
+                for (MgfFileInfoJson mgfFileInfoJson : m_mgfInfoFromDB) {
                     String name = mgfFileInfoJson.getName();
-                    String path = mgfFileInfoJson.getDirectoryPath();
+                    String path = mgfFileInfoJson.getDirectoryPath(); //as stored in DB (relative to ePims root)
                     int indexOFLastSlash = path.lastIndexOf('/');
 
                     String directoryName;
+                    //Get only last folder ?!
                     if (indexOFLastSlash != -1) {
                         directoryName = path.substring(indexOFLastSlash+1);
                     } else {
@@ -716,9 +769,12 @@ public class MgfPanel extends HourGlassPanel {
                 }
 
 
+                //Create MgfFileInfo from all mgf files found on local file system
+                // Set to FTP done if local relative path = db directory path
                 ArrayList<MgfFileInfo> mgfFileInfoArrayList = new ArrayList<>();
-                for (String directoryName : m_mgfMap.keySet()) {
-                    ArrayList<File> mgfFiles = m_mgfMap.get(directoryName);
+                for (String directoryName : m_localMgfFilesByPath.keySet()) {
+                    //directoryName: relative path from mgfFileManager root_path
+                    ArrayList<File> mgfFiles = m_localMgfFilesByPath.get(directoryName);
                     for (File mgfFile : mgfFiles) {
                         MgfFileInfo mgfFileInfo = new MgfFileInfo(directoryName, mgfFile, -1);
                         mgfFileInfoArrayList.add(mgfFileInfo);
@@ -732,22 +788,24 @@ public class MgfPanel extends HourGlassPanel {
                 }
                 m_model.setValues(mgfFileInfoArrayList);
 
-                // load data from Local MGFInfo file
+                // Update mgfFileInfo with extra info read from cache file
                 MgfFileManager.getSingleton().getExtraInfo(m_model.getMgfInfoMap());
 
                 // look for studies info from server
-               lookForFirstUnknowStudy();
+               lookForNextIncompleteMgfInfo();
             }
         }
 
+        //Implementation of MgfFilesListener to be notified once all mgf from file are loaded
         @Override
         public void mgfFilesMapLoaded(HashMap<String, ArrayList<File>> map) {
-            m_mgfMap = map;
+            m_localMgfFilesByPath = map;
             done();
         }
-    }
+  } //End MGFCallback
 
-    public static class MgfFileInfoRenderer extends DefaultTableCellRenderer {
+  //Renderer used to display mgfFile Status
+  public static class MgfFileInfoRenderer extends DefaultTableCellRenderer {
 
         private boolean m_state;
 
@@ -759,12 +817,45 @@ public class MgfPanel extends HourGlassPanel {
 
             JLabel label = (JLabel) super.getTableCellRendererComponent(table, "", isSelected, false, row, column);
 
-            MgfFileInfo mgfFileInfo = (MgfFileInfo) value;
+            if(column == MgfTableModel.COLTYPE_STEP) {
+                MgfFileInfo mgfFileInfo = (MgfFileInfo) value;
 
-            label.setIcon(mgfFileInfo.getStateIcon());
+                label.setIcon(mgfFileInfo.getStateIcon());
+            } else if(column == MgfTableModel.COLTYPE_ACQ) {
+                // Get the MgfFileInfo from the table model
+                MgfTableModel model = (MgfTableModel) table.getModel();
+                MgfFileInfo mgfFileInfo = model.getMgfFileInfo(row);
+
+                // Set the text to the acquisition name
+                label.setText(value != null ? value.toString() : "");
+
+                // Make text italic if m_userAcqName is true
+                if(mgfFileInfo.isUserAcqName()) {
+                    label.setFont(label.getFont().deriveFont(java.awt.Font.ITALIC));
+                } else {
+                    label.setFont(label.getFont().deriveFont(java.awt.Font.PLAIN));
+                }
+            }
 
             return this;
         }
-    }
+  }
 
+  private class MgfTable extends DecoratedTable {
+
+
+      @Override
+      public void setValueAt(Object aValue, int row, int column) {
+          Object previousVal = getModel().getValueAt(row, column);
+          if(previousVal != null && previousVal.equals(aValue)) {
+              return;
+          }
+
+          if(super.isCellEditable(row, column)) {
+              super.setValueAt(aValue, row, column);
+              MgfFileManager.getSingleton().writeMgfDB( m_model.getMgfInfoList());
+              lookForSpecificMgfInfo(m_model.getMgfFileInfo(row));
+          }
+      }
+  }
 }

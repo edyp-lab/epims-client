@@ -47,11 +47,12 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
     public static final int COLTYPE_DIRECTORY = 1;
     public static final int COLTYPE_MGF_FILE = 2;
     public static final int COLTYPE_STUDY = 3;
-    public static final int COLTYPE_SIZE = 4;
-    public static final int COLTYPE_FILE_DATE = 5;
-    public static final int COLTYPE_FTP_DATE = 6;
-    public static final int COLTYPE_ERROR = 7;
-    private static final String[] columnNames = {"", "Directory", "MGF File", "Study", "Size", "File Date", "FTP Date", "Error Message"};
+    public static final int COLTYPE_ACQ = 4;
+    public static final int COLTYPE_SIZE = 5;
+    public static final int COLTYPE_FILE_DATE = 6;
+    public static final int COLTYPE_FTP_DATE = 7;
+    public static final int COLTYPE_ERROR = 8;
+    private static final String[] columnNames = {"", "Directory", "MGF File", "Study", "Acquisition", "Size", "File Date", "FTP Date", "Error Message"};
 
     private ArrayList<MgfFileInfo> m_mgfInfoList = new ArrayList<>();
     private ArrayList<MgfFileInfo> m_mgfInfoFilteredList = new ArrayList<>();
@@ -160,6 +161,23 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
 
     }
 
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return columnIndex == COLTYPE_ACQ;
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        if(columnIndex==COLTYPE_ACQ) {
+            MgfFileInfo mgfFileInfo = m_mgfInfoFilteredList.get(rowIndex);
+            int row = m_mgfInfoList.indexOf(mgfFileInfo);
+            m_mgfInfoList.get(row).setAcqName((String) aValue);
+            m_mgfInfoList.get(row).setUserAcqName(true);
+            mgfFileInfo.setAcqName((String)aValue);
+            mgfFileInfo.setUserAcqName(true);
+        }
+    }
+
     public void dataChanged(final MgfFileInfo mgfFileInfo) {
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -185,6 +203,7 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
             case COLTYPE_SIZE:
             case COLTYPE_FILE_DATE:
             case COLTYPE_FTP_DATE:
+            case COLTYPE_ACQ:
             case COLTYPE_ERROR:
                 return String.class;
         }
@@ -259,6 +278,13 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
                 return studyJson.getTitle();
 
             }
+            case COLTYPE_ACQ: {
+                String acqName = mgfFileInfo.getAcqName();
+                if (acqName == null) {
+                    return "-";
+                }
+                return acqName;
+            }
             case COLTYPE_ERROR:
                 return mgfFileInfo.getErrorMessage();
         }
@@ -274,13 +300,16 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
 
     @Override
     public TableCellEditor getEditor(int row, int col) {
+        if (col == COLTYPE_ACQ) {
+            return new DefaultCellEditor(new JTextField(getValueAt(row, col).toString()) );
+        }
         return null;
     }
 
     @Override
     public TableCellRenderer getRenderer(int row, int col) {
 
-        if (col == COLTYPE_STEP) {
+        if (col == COLTYPE_STEP ||col == COLTYPE_ACQ) {
             return new MgfPanel.MgfFileInfoRenderer();
         }
 

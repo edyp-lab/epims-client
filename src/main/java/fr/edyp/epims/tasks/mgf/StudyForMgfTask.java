@@ -18,10 +18,9 @@
 
 package fr.edyp.epims.tasks.mgf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.edyp.epims.dataaccess.*;
 import fr.edyp.epims.mgf.MgfFileInfo;
+import fr.edyp.epims.tasks.util.TasksUtil;
 import fr.edyp.epims.util.error.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ import org.springframework.web.client.RestTemplate;
  */
 public class StudyForMgfTask extends AbstractAuthenticateDatabaseTask {
 
-    private String URL;
+    private final String URL;
     private static final Logger logger   = LoggerFactory.getLogger(StudyForMgfTask.class);
 
     private final MgfFileInfo m_mgfFileInfo;
@@ -59,58 +58,25 @@ public class StudyForMgfTask extends AbstractAuthenticateDatabaseTask {
 
         try {
 
-            HttpEntity<String> requestEntity = new HttpEntity<>(m_mgfFileInfo.getFile().getName(), entity.getHeaders());
-
-            // Send request with GET method, and Headers.
+            HttpEntity<String> requestEntity = new HttpEntity<>(m_mgfFileInfo.getMgfName(), entity.getHeaders());
             ResponseEntity<Integer> responseEntity = restTemplate.exchange(URL, HttpMethod.POST, requestEntity, Integer.class);
-            boolean result = testStatusCode(responseEntity, restTemplate, requestEntity);
-            if(!result)
+
+            m_taskError  = TasksUtil.testStatusCode(responseEntity, restTemplate, requestEntity,URL);
+            if(m_taskError != null)
                 return false;
 
             Integer studyId = responseEntity.getBody();
             m_mgfFileInfo.setStudyId(studyId);
 
-
-        } catch ( HttpStatusCodeException sce) {
-            // This catches HTTP errors regardless of server implementation
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.registerModule(new JavaTimeModule());
-                ErrorResponse error = mapper.readValue(sce.getResponseBodyAsString(), ErrorResponse.class);
-                m_taskError = new TaskError("Error " + error.getErrorCode(), error.getMessage());
-            } catch (Exception parseException) {
-                parseException.printStackTrace();
-                m_taskError = new TaskError("HTTP " + sce.getStatusCode(), sce.getMessage());
-            }
+        } catch ( HttpStatusCodeException sce)
+        {
+            m_taskError = TasksUtil.fromStatusCodeException(sce);
             return false;
         } catch (Exception e) {
             m_taskError = new TaskError(e);
             return false;
         }
 
-        return true;
-    }
-
-    private boolean testStatusCode(ResponseEntity<?> response, RestTemplate restTemplate, HttpEntity<?> requestEntity) {
-
-        HttpStatusCode statusCode = response.getStatusCode();
-
-        if (!statusCode.is2xxSuccessful()) {
-            //Error calling task. Try to get more information
-            try {
-                ResponseEntity<ErrorResponse> errorResponse = restTemplate.exchange(URL, HttpMethod.POST, requestEntity, ErrorResponse.class);
-                ErrorResponse error = errorResponse.getBody();
-                if (error != null) {
-                    m_taskError = new TaskError("Error " + error.getErrorCode(),
-                            error.getMessage() + (error.getDetails() != null ? " - " + error.getDetails() : ""));
-                } else {
-                    m_taskError = new TaskError("Failed for unknown reason");
-                }
-            } catch (Exception e) {
-                m_taskError = new TaskError("Failed for unknown reason");
-            }
-            return false;
-        }
         return true;
     }
 

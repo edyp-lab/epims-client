@@ -47,7 +47,7 @@ public class EpimsConnectionDialog extends DefaultDialog {
     private JPasswordField m_passwordField;
     private JCheckBox m_rememberPasswordCheckBox;
 
-    private Object m_serverMutex = new Object();
+    private final Object m_serverMutex = new Object();
     private Boolean m_lock = true;
 
 
@@ -61,7 +61,7 @@ public class EpimsConnectionDialog extends DefaultDialog {
 
         setInternalComponent(internalPanel);
 
-        setButtonVisible(DefaultDialog.BUTTON_CANCEL, false);
+        setButtonVisible(DefaultDialog.BUTTON_CANCEL, true);
         setButtonVisible(DefaultDialog.BUTTON_HELP, false);
 
     }
@@ -154,7 +154,7 @@ public class EpimsConnectionDialog extends DefaultDialog {
         String log = preferences.get(PreferencesKeys.EPIMS_CONNECT_LOG, "");
         m_userTextField.setText(log);
 
-        Boolean savePassword = preferences.getBoolean(PreferencesKeys.EPIMS_CONNECT_SAVE_PASSWORD, Boolean.FALSE);
+        boolean savePassword = preferences.getBoolean(PreferencesKeys.EPIMS_CONNECT_SAVE_PASSWORD, Boolean.FALSE);
         m_rememberPasswordCheckBox.setSelected(savePassword);
 
         if (savePassword) {
@@ -254,7 +254,10 @@ public class EpimsConnectionDialog extends DefaultDialog {
 
     }
 
-
+    @Override
+    protected boolean cancelCalled() {
+        return super.cancelCalled();
+    }
 
     @Override
     protected boolean okCalled() {

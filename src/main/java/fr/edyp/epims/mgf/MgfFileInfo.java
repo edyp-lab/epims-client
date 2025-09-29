@@ -70,6 +70,8 @@ public class MgfFileInfo {
     private final String m_directory;
     private final File m_file;
     private Integer m_studyId;
+    private String m_acqName;
+    private Boolean m_userAcqName;
 
     private boolean m_studySearched;
     private String m_errorMessage;
@@ -81,6 +83,8 @@ public class MgfFileInfo {
         m_directory = directory;
         m_file = file;
         m_studyId = StudyId;
+        m_acqName = "";
+        m_userAcqName = false;
         m_errorMessage = "";
         m_studySearched = false;
     }
@@ -99,6 +103,27 @@ public class MgfFileInfo {
 
     public File getFile() {
         return m_file;
+    }
+    public String getMgfName() {
+        if(m_file == null)
+            return "";
+        return m_file.getName();
+    }
+
+    public String getAcqName() {
+        return m_acqName;
+    }
+
+    public void setAcqName(String acqName) {
+        m_acqName = acqName;
+    }
+
+    public Boolean isUserAcqName() {
+        return m_userAcqName;
+    }
+
+    public void setUserAcqName(Boolean userAcqName) {
+        m_userAcqName = userAcqName;
     }
 
     public Integer getStudyId() {

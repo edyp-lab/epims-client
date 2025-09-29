@@ -21,12 +21,15 @@ package fr.edyp.epims.tasks.mgf;
 
 import fr.edyp.epims.json.MgfFileInfoJson;
 import fr.edyp.epims.dataaccess.*;
+import fr.edyp.epims.tasks.util.TasksUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
@@ -37,9 +40,9 @@ import java.util.ArrayList;
  */
 public class LoadMgfFilesTask extends AbstractAuthenticateDatabaseTask {
 
-    private String URL;
+    private final String URL;
 
-    private ArrayList<MgfFileInfoJson> m_mgfArrayList;
+    private final ArrayList<MgfFileInfoJson> m_mgfArrayList;
 
     public LoadMgfFilesTask(AbstractDatabaseCallback callback, ArrayList<MgfFileInfoJson> mgfArrayList) {
         super(callback, new TaskInfo("Load list of MGF paths", false, null), TokenManager.TOKEN_EPIMS_SERVER);
@@ -54,15 +57,20 @@ public class LoadMgfFilesTask extends AbstractAuthenticateDatabaseTask {
 
         try {
 
-            // Send request with GET method, and Headers.
-            ResponseEntity<MgfFileInfoJson[]> response = restTemplate.exchange(URL, //
-                    HttpMethod.POST, entity, MgfFileInfoJson[].class);
+            // Send request with POST method, and Headers.
+            ResponseEntity<MgfFileInfoJson[]> response = restTemplate.exchange(URL, HttpMethod.POST, entity, MgfFileInfoJson[].class);
+            m_taskError  = TasksUtil.testStatusCode(response, restTemplate, entity,URL);
+            if(m_taskError != null)
+                return false;
 
             MgfFileInfoJson[] mgfList = response.getBody();
 
-            for (MgfFileInfoJson mgfFileInfo : mgfList) {
-                m_mgfArrayList.add(mgfFileInfo);
-            }
+            if(mgfList != null)
+                m_mgfArrayList.addAll(Arrays.asList(mgfList));
+        }catch ( HttpStatusCodeException sce)
+        {
+            m_taskError = TasksUtil.fromStatusCodeException(sce);
+            return false;
         } catch (Exception e) {
             m_taskError = new TaskError(e);
             return false;

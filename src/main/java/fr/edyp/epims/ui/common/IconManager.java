@@ -99,6 +99,7 @@ public class IconManager {
         ADD_VERTICAL_ROBOT,
         ADD_PLATE,
         ARROW_MERGE,
+        ARROW_MERGE_MAIN,
         ARROW_SPLIT,
         INSERT_COLUMN,
         BIG_HELP,
@@ -306,6 +307,8 @@ public class IconManager {
                 return "add-plate.png";
             case ARROW_MERGE:
                 return "arrow-merge.png";
+            case ARROW_MERGE_MAIN:
+                return "arrow-merge-main.png";
             case ARROW_SPLIT:
                 return "arrow-split.png";
             case INSERT_COLUMN:

@@ -18,11 +18,9 @@
 package fr.edyp.epims.tasks;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.edyp.epims.json.ProjectJson;
 import fr.edyp.epims.json.StudyJson;
-import fr.edyp.epims.util.error.ErrorResponse;
+import fr.edyp.epims.tasks.util.TasksUtil;
 import fr.edyp.epims.dataaccess.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -62,28 +60,13 @@ public class AddStudyTask extends AbstractAuthenticateDatabaseTask {
 
 
             HttpEntity<StudyJson> requestEntity = new HttpEntity<>(m_studyJson[0], entity.getHeaders());
-
-            // Send request with POST method, and Headers.
             ResponseEntity<StudyJson> response = restTemplate.exchange(URL, HttpMethod.POST, requestEntity, StudyJson.class);
 
             HttpStatusCode statusCode = response.getStatusCode();
 
-            if (!statusCode.is2xxSuccessful()) {
-                //Error creating study. Try to get more information
-                try {
-                    ResponseEntity<ErrorResponse> errorResponse = restTemplate.exchange(URL, HttpMethod.POST, requestEntity, ErrorResponse.class);
-                    ErrorResponse error = errorResponse.getBody();
-                    if (error != null) {
-                        m_taskError = new TaskError("Error " + error.getErrorCode(),
-                                error.getMessage() + (error.getDetails() != null ? " - " + error.getDetails() : ""));
-                    } else {
-                        m_taskError = new TaskError("Failed for unknown reason");
-                    }
-                } catch (Exception e) {
-                    m_taskError = new TaskError("Failed for unknown reason");
-                }
+            m_taskError  = TasksUtil.testStatusCode(response, restTemplate, requestEntity,URL);
+            if(m_taskError != null)
                 return false;
-            }
 
             DataManager.getDatabaseVersion().bumpVersion(StudyJson.class, null);
             DataManager.getDatabaseVersion().bumpVersion(ProjectJson.class, null);
@@ -93,16 +76,7 @@ public class AddStudyTask extends AbstractAuthenticateDatabaseTask {
 
 
         } catch (HttpStatusCodeException sce) {
-            // This catches HTTP errors regardless of server implementation
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.registerModule(new JavaTimeModule());
-                ErrorResponse error = mapper.readValue(sce.getResponseBodyAsString(), ErrorResponse.class);
-                m_taskError = new TaskError("Error " + error.getErrorCode(), error.getMessage());
-            } catch (Exception parseException) {
-                parseException.printStackTrace();
-                m_taskError = new TaskError("HTTP " + sce.getStatusCode(), sce.getMessage());
-            }
+            m_taskError = TasksUtil.fromStatusCodeException(sce);
             return false;
         } catch (Exception e) {
             m_taskError = new TaskError(e);
