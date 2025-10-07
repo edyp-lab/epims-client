@@ -368,7 +368,7 @@ public class RobotPanel extends HourGlassPanel {
                     DatabaseVersionJson serverVersion = updateDataDialog.getServerDatabaseVersion();
                     String login = serverVersion.getLogin(RobotDataJson.class);
                     String user;
-                    if ((login == null) || (login.length() == 0)) {
+                    if ((login == null) || (login.isEmpty())) {
                         user = "Someone";
                     } else {
                         user = DataManager.getLastThenFirstNameFromActorKey(login);

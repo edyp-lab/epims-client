@@ -184,12 +184,13 @@ public class DataManager {
             }
             if ((specificClassName == null) && (className.equals(RobotDataJson.class.getSimpleName()))) {
                 //JPM.WART : in general case, we do not take in account RobotDataJson.class
+                //VDS FIXME .. Do continue ?
             }
 
             Integer version = versions.get(className);
 
             Integer serverVersion = serverVersions.get(className);
-            if ((serverVersion == null) || (serverVersion != version)) { // serverVersion should never be null
+            if ((serverVersion == null) || (!serverVersion.equals(version))) { // serverVersion should never be null
                 dataToUpdate.add(className);
             }
         }
