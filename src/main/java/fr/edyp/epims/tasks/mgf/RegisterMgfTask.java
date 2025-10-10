@@ -42,7 +42,7 @@ public class RegisterMgfTask extends AbstractAuthenticateDatabaseTask {
     private MgfFileInfoJson m_mgfFileInfo;
 
     public RegisterMgfTask(AbstractDatabaseCallback callback, MgfFileInfoJson mgfFileInfo) {
-        super(callback, new TaskInfo("Register Mgf File "+mgfFileInfo.getName(), true, null), TokenManager.TOKEN_EPIMS_SERVER);
+        super(callback, new TaskInfo("Register Mgf File "+mgfFileInfo.getFileName(), true, null), TokenManager.TOKEN_EPIMS_SERVER);
 
         URL = DataManager.getServerURL()+"/api/createmgf";
 

@@ -104,6 +104,9 @@ public class MgfFileManager {
     /**
      * Processes the provided map of MGF file information, updating and enriching it with data
      * from a cache file if available.
+     * Cache file is structured with one line by file and woth following information
+     * full_path \t Study Name \t FTP upload timestamp \t acq Name \t acq specified by yser (False/True)
+     *
      *
      * @param mgfFileInfoArrayMap A map where keys are file paths and values are MgfFileInfo objects
      *                            representing metadata and state for MGF files. This map will be
@@ -164,7 +167,7 @@ public class MgfFileManager {
 
                     } else {
                       logger.debug(" STUDY Already defined !!  {}", mgfFileInfo.getStudyId());
-                      if(isNewVersion && mgfFileInfo.getAcqName() == null ||  mgfFileInfo.getAcqName().isEmpty()){
+                      if(isNewVersion && (mgfFileInfo.getAcqName() == null ||  mgfFileInfo.getAcqName().isEmpty())){
                           st.nextToken(); // study
                           st.nextToken(); // timestamp
                           String acqName = st.nextToken();

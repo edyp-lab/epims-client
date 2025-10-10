@@ -171,10 +171,17 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
         if(columnIndex==COLTYPE_ACQ) {
             MgfFileInfo mgfFileInfo = m_mgfInfoFilteredList.get(rowIndex);
             int row = m_mgfInfoList.indexOf(mgfFileInfo);
+
             m_mgfInfoList.get(row).setAcqName((String) aValue);
-            m_mgfInfoList.get(row).setUserAcqName(true);
             mgfFileInfo.setAcqName((String)aValue);
+
             mgfFileInfo.setUserAcqName(true);
+            m_mgfInfoList.get(row).setUserAcqName(true);
+
+            if( aValue==null|| ((String)aValue).isEmpty()) {
+                mgfFileInfo.setUserAcqName(false);
+                m_mgfInfoList.get(row).setUserAcqName(false);
+            }
         }
     }
 

@@ -11,6 +11,7 @@ Previously hosted on CEA Tuleap Projects.
 
 ### version 2.8.x
 
+* Add better mgf management : fixes some error + allow user to specify acquisition
 * Remove "Analysis Request" management until new implementation
 * Modify Build to use batch instead of exe
 * update to Java 17 & dependencies 

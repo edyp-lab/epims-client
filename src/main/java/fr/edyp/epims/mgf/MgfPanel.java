@@ -24,6 +24,7 @@ import fr.edyp.epims.tasks.mgf.GetInfoForMgfFileTask;
 import fr.edyp.epims.tasks.mgf.LoadMgfFilesTask;
 import fr.edyp.epims.tasks.mgf.StudyForMgfTask;
 import fr.edyp.epims.ui.common.*;
+import fr.edyp.epims.util.Util;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -38,6 +39,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  *
@@ -705,6 +707,7 @@ public class MgfPanel extends HourGlassPanel {
         // map mgf files by their relative path from root_path
         private HashMap<String, ArrayList<File>> m_localMgfFilesByPath = new HashMap<>();
 
+        // This list will be set by caller of getMgfArrayList which will fill MgfFileInfoJson (passed to LoadMgfFilesTask)
         private final ArrayList<MgfFileInfoJson> m_mgfInfoFromDB = new ArrayList<>();
 
         public MgfCallback(int nbSteps) {
@@ -735,7 +738,7 @@ public class MgfPanel extends HourGlassPanel {
         }
 
         // Called twice (nb step)
-        // By "Callback.run": once LoadMgfFilesTask is complete
+        // By "Callback.run": once LoadMgfFilesTask is complete and m_mgfInfoFromDB filled
         // By mgfFilesMapLoaded: once all mgf from the local filesystem have been loaded
         // Create list of MgfFileInfo for all local mgf files, get Extra Information and set as tablemodel data
         private void done() {
@@ -747,14 +750,18 @@ public class MgfPanel extends HourGlassPanel {
                 // Last Folder in Path -> {set of mgf filename} from mgf from server
                 HashMap<String, HashSet<String>> mgfOnServerMap = new HashMap<>();
                 for (MgfFileInfoJson mgfFileInfoJson : m_mgfInfoFromDB) {
-                    String name = mgfFileInfoJson.getName();
+                    String name = mgfFileInfoJson.getFileName();
                     String path = mgfFileInfoJson.getDirectoryPath(); //as stored in DB (relative to ePims root)
-                    int indexOFLastSlash = path.lastIndexOf('/');
 
+                    //Get folder after <StudyPath>/samples/data/SPECTRA
+                    // FIXME : a better way to do mapping... ?
                     String directoryName;
-                    //Get only last folder ?!
-                    if (indexOFLastSlash != -1) {
-                        directoryName = path.substring(indexOFLastSlash+1);
+                    String spectraGenericPath ="/samples/data/SPECTRA";
+                    int indexOFSpectraPath = path.indexOf(spectraGenericPath);
+                    if (indexOFSpectraPath != -1) {
+                        directoryName = path.substring(indexOFSpectraPath+spectraGenericPath.length());
+                        if(directoryName.startsWith("/"))
+                            directoryName =directoryName.substring(1);
                     } else {
                         directoryName = path;
                     }
@@ -770,15 +777,17 @@ public class MgfPanel extends HourGlassPanel {
 
 
                 //Create MgfFileInfo from all mgf files found on local file system
-                // Set to FTP done if local relative path = db directory path
+                // Set to FTP done if 'ComputerName +  local relative path' = db directory path
                 ArrayList<MgfFileInfo> mgfFileInfoArrayList = new ArrayList<>();
+                String computerName = Util.getComputerName() == null ? "" : Util.getComputerName();
                 for (String directoryName : m_localMgfFilesByPath.keySet()) {
                     //directoryName: relative path from mgfFileManager root_path
                     ArrayList<File> mgfFiles = m_localMgfFilesByPath.get(directoryName);
                     for (File mgfFile : mgfFiles) {
                         MgfFileInfo mgfFileInfo = new MgfFileInfo(directoryName, mgfFile, -1);
                         mgfFileInfoArrayList.add(mgfFileInfo);
-                        HashSet<String> filesOnFTP = mgfOnServerMap.get(directoryName);
+                        String correspondingDbPath = (Objects.equals(directoryName, ".")) ? computerName : computerName+"/"+directoryName;
+                        HashSet<String> filesOnFTP = mgfOnServerMap.get(correspondingDbPath);
                         if (filesOnFTP != null) {
                             if (filesOnFTP.contains(mgfFile.getName())) {
                                 mgfFileInfo.setStatus(MgfFileInfo.StatusEnum.FTP_DONE);

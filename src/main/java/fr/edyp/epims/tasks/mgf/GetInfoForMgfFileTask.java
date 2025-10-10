@@ -18,8 +18,6 @@
 
 package fr.edyp.epims.tasks.mgf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.edyp.epims.json.MgfKeysInfoJson;
 import fr.edyp.epims.dataaccess.AbstractAuthenticateDatabaseTask;
 import fr.edyp.epims.dataaccess.AbstractDatabaseCallback;
@@ -30,12 +28,10 @@ import fr.edyp.epims.dataaccess.TaskInfoCallbackInterface;
 import fr.edyp.epims.dataaccess.TokenManager;
 import fr.edyp.epims.mgf.MgfFileInfo;
 import fr.edyp.epims.tasks.util.TasksUtil;
-import fr.edyp.epims.util.error.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -53,14 +49,14 @@ public class GetInfoForMgfFileTask extends AbstractAuthenticateDatabaseTask {
     private static final Logger logger   = LoggerFactory.getLogger(GetInfoForMgfFileTask.class);
 
     private final MgfFileInfo m_mgfFileInfo;
-    private  MgfKeysInfoJson m_mgfKeyInfo;
+    private final MgfKeysInfoJson m_mgfKeyInfo;
 
     public GetInfoForMgfFileTask(AbstractDatabaseCallback callback, TaskInfoCallbackInterface infoCallback, MgfFileInfo mgfInfo) {
         super(callback, new TaskInfo(infoCallback, "Find Information for Mgf File ", false, null), TokenManager.TOKEN_EPIMS_SERVER);
-        logger.debug("GetInfoForMgfFileTask : Find Study for Mgf File {}", mgfInfo.getMgfName());
+        logger.debug("GetInfoForMgfFileTask : Find Study for Mgf File {}", mgfInfo.getMgfFileName());
         URL = DataManager.getServerURL()+"/api/mgfkeyinfo";
         m_mgfFileInfo  = mgfInfo;
-        m_mgfKeyInfo = new MgfKeysInfoJson(m_mgfFileInfo.getMgfName(), m_mgfFileInfo.getStudyId(), m_mgfFileInfo.getAcqName(), null);
+        m_mgfKeyInfo = new MgfKeysInfoJson(m_mgfFileInfo.getMgfFileName(), m_mgfFileInfo.getStudyId(), m_mgfFileInfo.getAcqName(), null);
     }
 
     @Override

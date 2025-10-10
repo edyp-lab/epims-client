@@ -214,7 +214,7 @@ public class MgfTransferThread extends Thread {
                     // --- Write MGF File in Database
                     Date fileDate = new Date(action.getFile().lastModified());
                     double fileInMo = action.getFile().length() / 1000000d;
-                    MgfFileInfoJson mgfFileInfoJson = new MgfFileInfoJson(action.getFile().getName(), submgfDirectory.getAbsolutePath(), action.getStudyId(), fileDate, fileInMo);
+                    MgfFileInfoJson mgfFileInfoJson = new MgfFileInfoJson(action.getFile().getName(), action.getAcqName(), submgfDirectory.getAbsolutePath(), action.getStudyId(), fileDate, fileInMo);
                     RegisterMgfTask registerMgfTask = new RegisterMgfTask(null, mgfFileInfoJson);
                     boolean success = registerMgfTask.fetchData();
                     if (success) {

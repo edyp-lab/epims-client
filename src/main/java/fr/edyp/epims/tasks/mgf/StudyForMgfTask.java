@@ -21,12 +21,10 @@ package fr.edyp.epims.tasks.mgf;
 import fr.edyp.epims.dataaccess.*;
 import fr.edyp.epims.mgf.MgfFileInfo;
 import fr.edyp.epims.tasks.util.TasksUtil;
-import fr.edyp.epims.util.error.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -58,7 +56,7 @@ public class StudyForMgfTask extends AbstractAuthenticateDatabaseTask {
 
         try {
 
-            HttpEntity<String> requestEntity = new HttpEntity<>(m_mgfFileInfo.getMgfName(), entity.getHeaders());
+            HttpEntity<String> requestEntity = new HttpEntity<>(m_mgfFileInfo.getMgfFileName(), entity.getHeaders());
             ResponseEntity<Integer> responseEntity = restTemplate.exchange(URL, HttpMethod.POST, requestEntity, Integer.class);
 
             m_taskError  = TasksUtil.testStatusCode(responseEntity, restTemplate, requestEntity,URL);

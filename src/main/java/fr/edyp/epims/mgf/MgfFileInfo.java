@@ -104,7 +104,8 @@ public class MgfFileInfo {
     public File getFile() {
         return m_file;
     }
-    public String getMgfName() {
+
+    public String getMgfFileName() {
         if(m_file == null)
             return "";
         return m_file.getName();
