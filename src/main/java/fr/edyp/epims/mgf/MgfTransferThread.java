@@ -46,12 +46,12 @@ public class MgfTransferThread extends Thread {
 
     private MgfTableModel m_model;
 
-
+    //VDS TODO: No stop download possible... remove this ?
     private ServerFile m_serverFileBeingTreated = null;
 
-    private LinkedList<MgfFileInfo> m_actions;
-    private HashSet<MgfFileInfo> m_actionSet;
-    private ArrayList<MgfFileInfo> m_abortedActionIdList;
+    private final LinkedList<MgfFileInfo> m_actions;
+    private final HashSet<MgfFileInfo> m_actionSet;
+    private final ArrayList<MgfFileInfo> m_abortedActionIdList;
 
     private boolean m_transferFinished = true;
 
@@ -118,22 +118,20 @@ public class MgfTransferThread extends Thread {
 
                     while (true) {
 
-                        // Management of aborted task
+                        // Management of aborted tasks
                         if (!m_abortedActionIdList.isEmpty()) {
-                            int nbAbortedTask = m_abortedActionIdList.size();
-                            for (int i = 0; i < nbAbortedTask; i++) {
-                                MgfFileInfo abortedTask = m_abortedActionIdList.get(i);
-                                boolean present = m_actionSet.remove(abortedTask);
-                                if (!present) {
-                                    continue;
-                                }
-                                if (m_actions.contains(abortedTask)) {
-                                    m_actions.remove(abortedTask);
-                                    abortedTask.setStatus(MgfFileInfo.StatusEnum.FAILED);
-                                    abortedTask.setErrorMessage("Aborted");
-
-                                }
+                          for (MgfFileInfo abortedTask : m_abortedActionIdList) {
+                            boolean present = m_actionSet.remove(abortedTask);
+                            if (!present) {
+                              continue;
                             }
+                            if (m_actions.contains(abortedTask)) {
+                              m_actions.remove(abortedTask);
+                              abortedTask.setStatus(MgfFileInfo.StatusEnum.FAILED);
+                              abortedTask.setErrorMessage("Aborted");
+
+                            }
+                          }
                             m_abortedActionIdList.clear();
                         }
 
@@ -163,7 +161,7 @@ public class MgfTransferThread extends Thread {
 
                     File serverRoot = roots[0];
 
-                    // --- Look for or create samples/data/MGF directory in the study
+                    // --- Look for or create samples/data/SPECTRA directory in the study
                     ServerFile samplesDirectory = findOrCreateDirectory((ServerFile) serverRoot,"samples");
                     if (samplesDirectory == null) {
                         action.setStatus(MgfFileInfo.StatusEnum.FAILED);
@@ -209,7 +207,13 @@ public class MgfTransferThread extends Thread {
                     }
 
                     // --- UPLOAD to sub mgf directory MGF/submgfDirectory
-                    submgfDirectory.uploadto(action.getFile());
+                    m_serverFileBeingTreated =submgfDirectory;
+                    try {
+                        submgfDirectory.uploadto(action.getFile());
+                    } finally {
+                        m_serverFileBeingTreated = null;
+                    }
+
 
                     // --- Write MGF File in Database
                     Date fileDate = new Date(action.getFile().lastModified());
@@ -226,7 +230,7 @@ public class MgfTransferThread extends Thread {
 
                 } catch (IOException ioe) {
                     action.setStatus(MgfFileInfo.StatusEnum.FAILED);
-                    action.setErrorMessage("Exception Occured:"+ioe.getMessage());
+                    action.setErrorMessage("Exception Occurred:"+ioe.getMessage());
                     m_model.dataChanged(action);
                 }
 

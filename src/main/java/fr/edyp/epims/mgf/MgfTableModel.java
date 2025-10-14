@@ -17,7 +17,6 @@
 
 package fr.edyp.epims.mgf;
 
-import fr.edyp.epims.json.ProAnalysisJson;
 import fr.edyp.epims.json.StudyJson;
 import fr.edyp.epims.dataaccess.DataManager;
 import fr.edyp.epims.ui.common.DecoratedTableModelInterface;
@@ -33,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  *
@@ -57,7 +57,7 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
     private ArrayList<MgfFileInfo> m_mgfInfoList = new ArrayList<>();
     private ArrayList<MgfFileInfo> m_mgfInfoFilteredList = new ArrayList<>();
 
-    private HashMap<String, MgfFileInfo> m_mgfInfoMap = new HashMap();
+    private final HashMap<String, MgfFileInfo> m_mgfInfoMap = new HashMap<>();
 
     private String m_subdirectoryFilter = "";
     private boolean m_all = true;
@@ -66,7 +66,7 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
     private boolean m_errorMgf;
     private boolean m_deletedMgf;
 
-    private DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 
     public void setValues(ArrayList<MgfFileInfo> mgfInfoList) {
@@ -120,8 +120,7 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
             return;
         }
 
-        m_mgfInfoFilteredList = new ArrayList<>();
-        String directoryFilterUpper = m_subdirectoryFilter.toUpperCase();
+      String directoryFilterUpper = m_subdirectoryFilter.toUpperCase();
 
         m_mgfInfoFilteredList = new ArrayList<>();
         for (MgfFileInfo mgfFileInfo : m_mgfInfoList) {
@@ -130,7 +129,7 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
             if (!directoryOk) {
                 String directory = mgfFileInfo.getDirectory();
                 String directoryUpper = directory.toUpperCase();
-                if (directoryUpper.indexOf(directoryFilterUpper) != -1) {
+                if (directoryUpper.contains(directoryFilterUpper)) {
                     directoryOk = true;
                 }
             }
@@ -258,7 +257,7 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
                 try {
                     BasicFileAttributes attr = Files.readAttributes(mgfFileInfo.getFile().toPath(), BasicFileAttributes.class);
                     return  DATE_FORMAT.format(attr.lastModifiedTime().toMillis());
-                } catch (java.io.IOException e) {
+                } catch (java.io.IOException ignored) {
 
                 }
                 return "";
@@ -287,10 +286,7 @@ public class MgfTableModel extends AbstractTableModel implements DecoratedTableM
             }
             case COLTYPE_ACQ: {
                 String acqName = mgfFileInfo.getAcqName();
-                if (acqName == null) {
-                    return "-";
-                }
-                return acqName;
+                return Objects.requireNonNullElse(acqName, "-");
             }
             case COLTYPE_ERROR:
                 return mgfFileInfo.getErrorMessage();

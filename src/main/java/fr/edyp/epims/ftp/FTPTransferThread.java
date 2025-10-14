@@ -86,7 +86,7 @@ public class FTPTransferThread extends Thread {
     public void run() {
         try {
             while (true) {
-                TransferInfo action = null;
+                TransferInfo action;
                 synchronized (this) {
 
                     while (true) {
