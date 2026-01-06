@@ -363,7 +363,7 @@ public class DataManager {
         String[] subDirs = {programNomenclature, projectNomenclature, studyNomenclature};
 
 
-        FtpConfigurationJson ftpConfiguration = new FtpConfigurationJson(m_ftpConfiguration.getHost(), m_ftpConfiguration.getLogin(), m_ftpConfiguration.getPassword(),
+        FtpConfigurationJson ftpConfiguration = new FtpConfigurationJson(m_ftpConfiguration.getHost(),m_ftpConfiguration.getPort(), m_ftpConfiguration.getLogin(), m_ftpConfiguration.getPassword(),
                 m_ftpConfiguration.getStartPath(), subDirs);
 
         return ftpConfiguration;
