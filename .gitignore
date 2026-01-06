@@ -2,3 +2,6 @@
 /target
 .idea/
 /ePimsJavaClient.iml
+
+# Do not commit private key used for SFTP
+/src/main/resources/config/epims-id_rsa

@@ -6,7 +6,7 @@
 
     <groupId>fr.edyp.epims</groupId>
     <artifactId>ePimsJavaClient</artifactId>
-    <version>2.8.0-SNAPSHOT</version>
+    <version>2.8.1-SNAPSHOT</version>
     <name>ePims-Client</name>
 
      <parent>
@@ -18,7 +18,7 @@
 
     <properties>
         <os.classifier>windows-x64</os.classifier>
-        <springBoot.version>${parent.version}</springBoot.version>
+        <springBoot.version>${project.parent.version}</springBoot.version>
     </properties>
 
     <dependencies>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>fr.edyp.epims</groupId>
             <artifactId>eP-Json</artifactId>
-            <version>3.7.0-SNAPSHOT</version>
+            <version>3.7.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -69,9 +69,9 @@
 
         <!-- SFTP  -->
         <dependency>
-            <groupId>net.schmizz</groupId>
+            <groupId>com.hierynomus</groupId>
             <artifactId>sshj</artifactId>
-            <version>0.10.0</version>
+            <version>0.40.0</version>
         </dependency>
 
         <dependency>
@@ -91,12 +91,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.5.18</version>
+            <version>1.5.19</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.18</version>
+            <version>1.5.19</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -167,6 +167,9 @@
                                 <include>epims.properties</include>
                                 <include>**/images/*</include>
                             </includes>
+                            <excludes>
+                                <exclude>config/**</exclude>
+                            </excludes>
                         </resource>
                     </resources>
                     <outputDirectory>${project.build.outputDirectory}</outputDirectory>
@@ -194,6 +197,28 @@
                             </resource>
                         </resources>
                         <outputDirectory>${project.build.directory}</outputDirectory>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>copy-config-to-dist</id>
+                    <phase>validate</phase>
+                    <goals>
+                        <goal>copy-resources</goal>
+                    </goals>
+                    <configuration>
+                        <overwrite>true</overwrite>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <useDefaultDelimiters>true</useDefaultDelimiters>
+                        <resources>
+                            <resource>
+                                <directory>${project.basedir}/src/main/resources/config</directory>
+                                <filtering>false</filtering>
+                                <includes>
+                                    <include>**/*</include>
+                                </includes>
+                            </resource>
+                        </resources>
+                        <outputDirectory>${project.build.directory}/config</outputDirectory>
                     </configuration>
                 </execution>
                 <execution>

@@ -1037,6 +1037,20 @@ public class DataManager {
                 LoggerFactory.getLogger("Epims.Client").debug("Load data for FTP ... DONE ("+finished+"). Result "+success);
                 if (success) {
                     m_ftpConfiguration = ftpConfiguration[0];
+                    // Apply client-side override for FTP host if provided
+                    try {
+                        String overrideHost = fr.edyp.epims.config.ClientConfig.getFtpHost();
+                        if (overrideHost != null && !overrideHost.isEmpty()) {
+                            m_ftpConfiguration.setHost(overrideHost);
+                        }
+                        Integer overridePort = fr.edyp.epims.config.ClientConfig.getFtpPort();
+                        if (overridePort != null) {
+                            m_ftpConfiguration.setPort(overridePort);
+                        }
+
+                    } catch (Throwable t) {
+                        // ignore override errors
+                    }
 
                     checkAllDataLoaded();
                 }

@@ -29,6 +29,14 @@
             </includes>
             <outputDirectory/>
         </fileSet>
+        <!-- Include external config folder into distribution root -->
+        <fileSet>
+            <directory>${project.build.directory}/config</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>config</outputDirectory>
+        </fileSet>
 
     </fileSets>
 

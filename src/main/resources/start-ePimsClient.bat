@@ -1,1 +1,1 @@
-.\java\bin\java -cp "lib/*;ePimsJavaClient-${pom.version}.jar;config" -Dlogback.configurationFile=logback.xml fr.epims.Main
+.\java\bin\java -cp "lib/*;ePimsJavaClient-${pom.version}.jar;config" -Dlogback.configurationFile=logback.xml fr.edyp.epims.Main
