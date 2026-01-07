@@ -20,7 +20,7 @@ package fr.edyp.epims.ftp;
 
 import fr.edyp.epims.json.FtpConfigurationJson;
 import fr.edyp.epims.MainFrame;
-import fr.edyp.epims.preferences.EpimsPreferences;
+import fr.edyp.epims.preferences.EPimsUserPreferences;
 import fr.edyp.epims.preferences.PreferencesKeys;
 import fr.edyp.epims.ui.common.FlatButton;
 import fr.edyp.epims.ui.common.HourGlassPanel;
@@ -327,7 +327,7 @@ public class TreeFileChooserPanel extends HourGlassPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                Preferences preferences = EpimsPreferences.root();
+                Preferences preferences = EPimsUserPreferences.root();
                 String defaultDirString = preferences.get(PreferencesKeys.FTP_DOWNLOAD_DIR, System.getProperty("user.home"));
                 File defaultDir = new File(defaultDirString);
                 if (!defaultDir.exists()) {
@@ -393,7 +393,7 @@ public class TreeFileChooserPanel extends HourGlassPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                Preferences preferences = EpimsPreferences.root();
+                Preferences preferences = EPimsUserPreferences.root();
                 String defaultDirString = preferences.get(PreferencesKeys.FTP_DOWNLOAD_DIR, System.getProperty("user.home"));
                 File defaultDir = new File(defaultDirString);
                 if (!defaultDir.exists()) {

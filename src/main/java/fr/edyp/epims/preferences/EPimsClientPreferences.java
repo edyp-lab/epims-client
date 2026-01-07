@@ -1,23 +1,22 @@
 /*
  * ClientConfig utility to load optional client-side overrides from config/epims-client.properties
  */
-package fr.edyp.epims.config;
+package fr.edyp.epims.preferences;
 
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.Properties;
 
-public final class ClientConfig {
+public final class EPimsClientPreferences {
     private static final String CONFIG_FILE_NAME = "epims-client.properties";
     private static final String CONFIG_FOLDER = "config";
 
     private static final Properties PROPS = new Properties();
     private static boolean loaded = false;
 
-    private ClientConfig() {}
+    private EPimsClientPreferences() {}
 
     private static synchronized void ensureLoaded() {
         if (loaded) return;

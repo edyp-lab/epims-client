@@ -18,6 +18,7 @@
 package fr.edyp.epims.dataaccess;
 
 import fr.edyp.epims.json.*;
+import fr.edyp.epims.preferences.EPimsClientPreferences;
 import fr.edyp.epims.tasks.*;
 import fr.edyp.epims.tasks.analyses.LoadPriceListTask;
 import org.slf4j.LoggerFactory;
@@ -1039,11 +1040,11 @@ public class DataManager {
                     m_ftpConfiguration = ftpConfiguration[0];
                     // Apply client-side override for FTP host if provided
                     try {
-                        String overrideHost = fr.edyp.epims.config.ClientConfig.getFtpHost();
+                        String overrideHost = EPimsClientPreferences.getFtpHost();
                         if (overrideHost != null && !overrideHost.isEmpty()) {
                             m_ftpConfiguration.setHost(overrideHost);
                         }
-                        Integer overridePort = fr.edyp.epims.config.ClientConfig.getFtpPort();
+                        Integer overridePort = EPimsClientPreferences.getFtpPort();
                         if (overridePort != null) {
                             m_ftpConfiguration.setPort(overridePort);
                         }

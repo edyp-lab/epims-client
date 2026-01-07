@@ -18,7 +18,7 @@
 package fr.edyp.epims.ftp;
 
 
-import fr.edyp.epims.config.ClientConfig;
+import fr.edyp.epims.preferences.EPimsClientPreferences;
 import fr.edyp.epims.json.FtpConfigurationJson;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
@@ -72,7 +72,7 @@ public class FtpClient {
                 m_sshClient.connect(m_config.getHost());
             }
             // m_sshClient.authPassword(m_config.getLogin(), m_config.getPassword());
-            String keyPath = ClientConfig.getFtpKeyPath();
+            String keyPath = EPimsClientPreferences.getFtpKeyPath();
             m_sshClient.authPublickey(m_config.getLogin(), keyPath);
             m_sftClient = m_sshClient.newSFTPClient();
 

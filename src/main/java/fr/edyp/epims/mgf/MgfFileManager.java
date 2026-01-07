@@ -19,7 +19,7 @@ package fr.edyp.epims.mgf;
 
 import fr.edyp.epims.json.StudyJson;
 import fr.edyp.epims.dataaccess.DataManager;
-import fr.edyp.epims.preferences.EpimsPreferences;
+import fr.edyp.epims.preferences.EPimsUserPreferences;
 import fr.edyp.epims.preferences.PreferencesKeys;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ public class MgfFileManager {
 
     private MgfFileManager() {
 
-        Preferences preferences = EpimsPreferences.root();
+        Preferences preferences = EPimsUserPreferences.root();
         //Use this Path as default on Process PC...
         String defaultDirString = preferences.get(PreferencesKeys.MGF_ROOT_DIR, "D:\\Data\\MGF");
         LoggerFactory.getLogger("Epims.Client").info("Read mgf files from "+defaultDirString);
@@ -91,7 +91,7 @@ public class MgfFileManager {
 
         m_rootDirectory = rootDirectory;
 
-        Preferences preferences = EpimsPreferences.root();
+        Preferences preferences = EPimsUserPreferences.root();
         preferences.put(PreferencesKeys.MGF_ROOT_DIR, rootDirectory.getAbsolutePath());
         try {
             preferences.flush();

@@ -18,7 +18,7 @@
 package fr.edyp.epims;
 
 
-import fr.edyp.epims.preferences.EpimsPreferences;
+import fr.edyp.epims.preferences.EPimsUserPreferences;
 
 import javax.swing.*;
 import java.util.Locale;
@@ -40,7 +40,7 @@ public class Main {
         Locale.setDefault(locale);
 
         // init Preferences
-        EpimsPreferences.initPreferences(null);
+        EPimsUserPreferences.initPreferences(null);
 
 
 

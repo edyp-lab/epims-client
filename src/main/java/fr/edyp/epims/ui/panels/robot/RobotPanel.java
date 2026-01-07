@@ -25,7 +25,7 @@ import fr.edyp.epims.MainFrame;
 import fr.edyp.epims.dataaccess.AbstractDatabaseCallback;
 import fr.edyp.epims.dataaccess.AccessDatabaseThread;
 import fr.edyp.epims.dataaccess.DataManager;
-import fr.edyp.epims.preferences.EpimsPreferences;
+import fr.edyp.epims.preferences.EPimsUserPreferences;
 import fr.edyp.epims.preferences.PreferencesKeys;
 import fr.edyp.epims.tasks.AddPlateTask;
 import fr.edyp.epims.tasks.RobotPlateTask;
@@ -403,7 +403,7 @@ public class RobotPanel extends HourGlassPanel {
                     index++;
                 }
 
-                Preferences preferences = EpimsPreferences.root();
+                Preferences preferences = EPimsUserPreferences.root();
                 int defaultPlateSizeX = preferences.getInt (PreferencesKeys.PLATE_DIM_X, 12);
                 int defaultPlateSizeY = preferences.getInt (PreferencesKeys.PLATE_DIM_Y, 8);
 
@@ -583,7 +583,7 @@ public class RobotPanel extends HourGlassPanel {
                 Object previousColorMode =  m_colorationModeCombobox.getSelectedItem();
                 m_colorationModeCombobox.setSelectedItem(STUDY);
 
-                Preferences preferences = EpimsPreferences.root();
+                Preferences preferences = EPimsUserPreferences.root();
                 String defaultDirString = preferences.get(PreferencesKeys.EXCEL_EXPORT_DIR, System.getProperty("user.home"));
                 File defaultDir = new File(defaultDirString);
                 if (!defaultDir.exists()) {

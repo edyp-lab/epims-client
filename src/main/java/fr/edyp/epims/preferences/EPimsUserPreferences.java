@@ -32,7 +32,7 @@ import java.nio.file.Paths;
  * @author JM235353
  *
  */
-public class EpimsPreferences {
+public class EPimsUserPreferences {
 
     private static FilePreferences m_preferences;
 

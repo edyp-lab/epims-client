@@ -22,7 +22,7 @@ import fr.edyp.epims.MainFrame;
 import fr.edyp.epims.dataaccess.AbstractDatabaseCallback;
 import fr.edyp.epims.dataaccess.AccessDatabaseThread;
 import fr.edyp.epims.dataaccess.DataManager;
-import fr.edyp.epims.preferences.EpimsPreferences;
+import fr.edyp.epims.preferences.EPimsUserPreferences;
 import fr.edyp.epims.preferences.PreferencesKeys;
 import fr.edyp.epims.tasks.GetDatabaseVersionTask;
 import fr.edyp.epims.ui.common.DefaultDialog;
@@ -146,7 +146,7 @@ public class EpimsConnectionDialog extends DefaultDialog {
     }
 
     private void fillFields() {
-        Preferences preferences = EpimsPreferences.root();
+        Preferences preferences = EPimsUserPreferences.root();
 
         String server = preferences.get(PreferencesKeys.EPIMS_CONNECT_SERVER, "http://localhost:8080");
         m_serverTextField.setText(server);
@@ -265,7 +265,7 @@ public class EpimsConnectionDialog extends DefaultDialog {
             return false;
         }
 
-        Preferences preferences = EpimsPreferences.root();
+        Preferences preferences = EPimsUserPreferences.root();
         preferences.put(PreferencesKeys.EPIMS_CONNECT_LOG, m_userTextField.getText().trim());
 
         preferences.put(PreferencesKeys.EPIMS_CONNECT_SERVER, m_serverTextField.getText().trim());
