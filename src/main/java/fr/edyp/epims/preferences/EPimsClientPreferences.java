@@ -53,8 +53,7 @@ public final class EPimsClientPreferences {
     }
 
     public static Integer getFtpPort() {
-        ensureLoaded();
-        String v = PROPS.getProperty("ftp.port");
+        String v = get("ftp.port");
         if (v == null || v.trim().isEmpty()) return null;
         try {
             return Integer.parseInt(v.trim());
