@@ -40,12 +40,12 @@ import java.util.List;
  */
 public class FtpClient {
 
-    private FtpConfigurationJson m_config;
+    private final FtpConfigurationJson m_config;
 
     private SSHClient m_sshClient = null;
     private SFTPClient m_sftClient = null;
 
-    private FTPServerFileSystemView m_systemView;
+    private final FTPServerFileSystemView m_systemView;
 
     private boolean connected = false;
 
@@ -99,8 +99,7 @@ public class FtpClient {
         if (m_sshClient != null){
             try {
                 m_sshClient.close();
-            } catch (IOException e2) {
-            } catch (Throwable t) {
+            } catch (Throwable ignored) {
             }
             m_sshClient = null;
         }
@@ -108,6 +107,8 @@ public class FtpClient {
 
     public void download(File serverSource, File localDestination) throws IOException {
         try {
+            if(!connected)
+                connect();
             _download(serverSource, localDestination);
         } catch (Exception e) {
             if (connected) {
@@ -115,6 +116,8 @@ public class FtpClient {
                 connect();
                 _download(serverSource, localDestination);
             }
+        } finally {
+            disconnect();
         }
     }
 
@@ -124,6 +127,8 @@ public class FtpClient {
 
     public void upload(File localSource, File serverDestination) throws IOException {
         try {
+            if(!connected)
+                connect();
             _upload(localSource, serverDestination);
         } catch (Exception e) {
             if (connected) {
@@ -131,6 +136,9 @@ public class FtpClient {
                 connect();
                 _upload(localSource, serverDestination);
             }
+        }
+        finally {
+            disconnect();
         }
     }
 
@@ -140,24 +148,32 @@ public class FtpClient {
 
     public ArrayList<File> getFiles(File dir) throws IOException {
         try {
+            if(!connected)
+                connect();
             return _getFiles(dir);
         } catch (Exception e) {
             // try to reconnect
             disconnect();
             connect();
             return _getFiles(dir);
+        } finally {
+            disconnect();
         }
     }
 
     public File createDirectory(File parentDirectory, String directoryName) throws IOException {
+        if(!connected)
+            connect();
+       try {
 
-        String path = parentDirectory.getAbsolutePath()+"/"+directoryName;
-        m_sftClient.mkdir(path);
+           String path = parentDirectory.getAbsolutePath() + "/" + directoryName;
+           m_sftClient.mkdir(path);
 
 
-        ServerFile f = new ServerFile(m_systemView, path, directoryName, true, m_sftClient.atime(path), m_sftClient.size(path));
-
-        return f;
+         return new ServerFile(m_systemView, path, directoryName, true, m_sftClient.atime(path), m_sftClient.size(path));
+       } finally {
+            disconnect();
+       }
     }
 
     private ArrayList<File> _getFiles(File dir) throws IOException {
