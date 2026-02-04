@@ -46,8 +46,6 @@ public class MgfTransferThread extends Thread {
 
     private MgfTableModel m_model;
 
-    //VDS TODO: No stop download possible... remove this ?
-    private ServerFile m_serverFileBeingTreated = null;
 
     private final LinkedList<MgfFileInfo> m_actions;
     private final HashSet<MgfFileInfo> m_actionSet;
@@ -97,12 +95,6 @@ public class MgfTransferThread extends Thread {
         }
     }
 
-    public void stopDownload() {
-        if (m_serverFileBeingTreated != null) {
-            m_serverFileBeingTreated.abort();
-        }
-
-    }
 
 
     /**
@@ -207,12 +199,7 @@ public class MgfTransferThread extends Thread {
                     }
 
                     // --- UPLOAD to sub mgf directory MGF/submgfDirectory
-                    m_serverFileBeingTreated =submgfDirectory;
-                    try {
-                        submgfDirectory.uploadto(action.getFile());
-                    } finally {
-                        m_serverFileBeingTreated = null;
-                    }
+                    submgfDirectory.uploadto(action.getFile());
 
 
                     // --- Write MGF File in Database
