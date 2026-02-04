@@ -77,7 +77,6 @@ public class FtpClient {
             m_sftClient = m_sshClient.newSFTPClient();
 
         } catch (IOException e) {
-            //JPM.TODO : manage error and display a message for user
             LoggerFactory.getLogger("Epims.Client").error("Unexpected exception in FTP connect !", e);
             e.printStackTrace();
             disconnect();
