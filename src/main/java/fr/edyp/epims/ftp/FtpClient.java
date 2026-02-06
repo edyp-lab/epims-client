@@ -57,8 +57,8 @@ public class FtpClient {
 
 
     private void connect() {
-        connected = true;
         if (m_sftClient != null) {
+            connected = true;
             return;
         }
         try {
@@ -71,15 +71,19 @@ public class FtpClient {
             } else {
                 m_sshClient.connect(m_config.getHost());
             }
-            // m_sshClient.authPassword(m_config.getLogin(), m_config.getPassword());
+
             String keyPath = EPimsClientPreferences.getFtpKeyPath();
             m_sshClient.authPublickey(m_config.getLogin(), keyPath);
             m_sftClient = m_sshClient.newSFTPClient();
-
+            if(m_sftClient == null){
+                throw new IOException("Failed to establish SFTP connection");
+            }
+            connected = true;
         } catch (IOException e) {
             LoggerFactory.getLogger("Epims.Client").error("Unexpected exception in FTP connect !", e);
             e.printStackTrace();
             disconnect();
+            throw new RuntimeException("SFTP connect failed", e);
         }
     }
 
@@ -89,7 +93,7 @@ public class FtpClient {
         if (m_sftClient != null) {
             try {
                 m_sftClient.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
                 //logger.error("Unable to close SFTP Client" ,e);
             }
             m_sftClient = null;
@@ -110,10 +114,13 @@ public class FtpClient {
                 connect();
             _download(serverSource, localDestination);
         } catch (Exception e) {
-            if (connected) {
-                disconnect();
-                connect();
+            disconnect();
+            connect();
+            try {
                 _download(serverSource, localDestination);
+            } catch (Exception e2) {
+                if (e2 instanceof IOException io) throw io;
+                throw new IOException("SFTP download failed", e2);
             }
         } finally {
             disconnect();
@@ -130,10 +137,13 @@ public class FtpClient {
                 connect();
             _upload(localSource, serverDestination);
         } catch (Exception e) {
-            if (connected) {
-                disconnect();
-                connect();
+            disconnect();
+            connect();
+            try {
                 _upload(localSource, serverDestination);
+            } catch (Exception e2) {
+                if (e2 instanceof IOException io) throw io;
+                throw new IOException("SFTP upload failed", e2);
             }
         }
         finally {
@@ -151,10 +161,14 @@ public class FtpClient {
                 connect();
             return _getFiles(dir);
         } catch (Exception e) {
-            // try to reconnect
             disconnect();
             connect();
-            return _getFiles(dir);
+            try {
+                return _getFiles(dir);
+            } catch (Exception e2) {
+                if (e2 instanceof IOException io) throw io;
+                throw new IOException("SFTP list failed", e2);
+            }
         } finally {
             disconnect();
         }

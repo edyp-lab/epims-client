@@ -35,12 +35,10 @@ import java.util.ArrayList;
  */
 public class FTPServerFileSystemView extends FileSystemView {
 
-    //private static FTPServerFileSystemView m_singleton;
     private File[] m_roots = null;
-    //private static HashMap<String, ArrayList<String>> m_rootsInfo = null;
 
     private FtpConfigurationJson m_config = null;
-    private FtpClient m_ftpClient = null;
+
 
     public FTPServerFileSystemView(FtpConfigurationJson config) {
         m_config = config;
@@ -117,25 +115,17 @@ public class FTPServerFileSystemView extends FileSystemView {
     }
 
     public void download(File serverSource, File localDestination) throws IOException {
-        if (m_ftpClient == null) {
-            m_ftpClient = new FtpClient(this, m_config);
-        }
-        m_ftpClient.download(serverSource, localDestination);
+        FtpClient ftpClient = new FtpClient(this, m_config);
+        ftpClient.download(serverSource, localDestination);
     }
 
     public void upload(File localSource, File serverDestination) throws IOException {
-        if (m_ftpClient == null) {
-            m_ftpClient = new FtpClient(this, m_config);
-        }
-        m_ftpClient.upload(localSource, serverDestination);
+        FtpClient ftpClient = new FtpClient(this, m_config);
+        ftpClient.upload(localSource, serverDestination);
     }
 
     public void abortFTPClient() {
-        if (m_ftpClient == null) {
-            return;
-        }
-        m_ftpClient.disconnect();
-        m_ftpClient = null;
+
     }
 
     @Override
@@ -171,12 +161,8 @@ public class FTPServerFileSystemView extends FileSystemView {
     public File createNewFolder(File parentDirectory, String directoryName) {
 
         try {
-            if (m_ftpClient == null) {
-                m_ftpClient = new FtpClient(this, m_config);
-            }
-            File directory = m_ftpClient.createDirectory(parentDirectory, directoryName);
-
-            return directory;
+            FtpClient ftpClient = new FtpClient(this, m_config);
+            return ftpClient.createDirectory(parentDirectory, directoryName);
         } catch (IOException e) {
             return null;
         }
@@ -187,10 +173,8 @@ public class FTPServerFileSystemView extends FileSystemView {
     public File[] getFiles(File dir, boolean useFileHiding) {
 
         try {
-            if (m_ftpClient == null) {
-                m_ftpClient = new FtpClient(this, m_config);
-            }
-            ArrayList<File> list = m_ftpClient.getFiles(dir);
+            FtpClient ftpClient = new FtpClient(this, m_config);
+            ArrayList<File> list = ftpClient.getFiles(dir);
 
             File[] files = new File[list.size()];
             files = list.toArray(files);
