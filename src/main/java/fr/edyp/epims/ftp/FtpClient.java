@@ -175,18 +175,24 @@ public class FtpClient {
     }
 
     public File createDirectory(File parentDirectory, String directoryName) throws IOException {
-        if(!connected)
+        if (!connected)
             connect();
-       try {
+        try {
+            //Go through path to create each directory one after the other
+            String[] pathParts = directoryName.split("/");
+            String parentDirectoryPath = parentDirectory.getAbsolutePath();
+            String lastPart = "";
+            for (String nextPart : pathParts) {
+                lastPart = nextPart;
+                String path = parentDirectoryPath + "/" + nextPart;
+                m_sftClient.mkdir(path);
+                parentDirectoryPath = path;
+            }
 
-           String path = parentDirectory.getAbsolutePath() + "/" + directoryName;
-           m_sftClient.mkdir(path);
-
-
-         return new ServerFile(m_systemView, path, directoryName, true, m_sftClient.atime(path), m_sftClient.size(path));
-       } finally {
+            return new ServerFile(m_systemView, parentDirectoryPath, lastPart, true, m_sftClient.atime(parentDirectoryPath), m_sftClient.size(parentDirectoryPath));
+        } finally {
             disconnect();
-       }
+        }
     }
 
     private ArrayList<File> _getFiles(File dir) throws IOException {

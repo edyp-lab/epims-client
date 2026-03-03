@@ -359,12 +359,15 @@ public class MgfFileManager {
         if (m_rootDirectory != null) {
             FileUtils.iterateFiles(m_rootDirectory, new String[] {"mgf", "MGF"}, true).forEachRemaining(
                 file -> {
+                    //Use Linux like separator
                     String parentPath = file.getParentFile().getAbsolutePath();
                     if(parentPath.equals(m_rootDirectory.getAbsolutePath())) {
                         parentPath = ".";
                      } else {
                         parentPath = parentPath.substring(m_rootDirectory.getAbsolutePath().length() + 1);
+                        parentPath = parentPath.replace(File.separator, "/");
                     }
+
                     ArrayList<File> allFiles = m_mgfFilesMap.getOrDefault(parentPath, new ArrayList<>());
                     allFiles.add(file);
                     m_mgfFilesMap.put(parentPath, allFiles);
