@@ -18,6 +18,7 @@
 package fr.edyp.epims.ui.dialogs;
 
 import fr.edyp.epims.json.ActorJson;
+import fr.edyp.epims.json.Category;
 import fr.edyp.epims.json.ContactJson;
 import fr.edyp.epims.json.ProjectJson;
 import fr.edyp.epims.json.StudyJson;
@@ -58,6 +59,7 @@ public class AddStudyDialog extends DefaultDialog {
     private JTextField m_longTitle = null;
     private JTextField m_nomenclature = null;
     private JComboBox<ActorJson> m_responsibleCombobox = null;
+    private JComboBox<Category> m_categoryCombobox = null;
     private JFormattedTextField m_dateTextField;
     private JTextField m_analysisType = null;
     private JTextField m_contractualFrame = null;
@@ -121,6 +123,9 @@ public class AddStudyDialog extends DefaultDialog {
 
         m_analysisType = new JTextField(50);
         m_contractualFrame = new JTextField(50);
+        
+        DefaultComboBoxModel<Category> categoryModel = new DefaultComboBoxModel<>(Category.getStudyCategories());
+        m_categoryCombobox = new JComboBox<>(categoryModel);
 
         ArrayList<String> actorsKeys = DataManager.getActorsKeys();
         ArrayList<ContactJson> members = DataManager.getContactsFromActorsKeys(actorsKeys);
@@ -252,6 +257,16 @@ public class AddStudyDialog extends DefaultDialog {
         c.gridx++;
         c.gridwidth = 4;
         p.add(m_contractualFrame, c);
+        c.gridwidth = 1;
+
+        // --- Category
+        c.gridy++;
+        c.gridx = 0;
+        p.add(new JLabel("Category:", IconManager.getIcon(IconManager.IconType.STAR_COMPULSORY), SwingConstants.RIGHT), c);
+
+        c.gridx++;
+        c.gridwidth = 4;
+        p.add(m_categoryCombobox, c);
         c.gridwidth = 1;
 
         // --- Members
@@ -419,7 +434,12 @@ public class AddStudyDialog extends DefaultDialog {
             return false;
         }
 
-
+        // Category check
+        if (m_categoryCombobox.getSelectedItem() == null) {
+            highlight(m_categoryCombobox);
+            setStatus(true, "You must select a Category.");
+            return false;
+        }
 
         return true;
     }
@@ -433,6 +453,8 @@ public class AddStudyDialog extends DefaultDialog {
                 UtilDate.convertToDateWithoutHour(m_dateTextField.getText().trim()), null, null,
                 "en cours", m_confidentialityCheckBox.isSelected(), ""
                 );
+
+        studyJson.setCategory((Category) m_categoryCombobox.getSelectedItem());
 
 
 

@@ -11,13 +11,14 @@ Previously hosted on CEA Tuleap Projects.
 
 ### version 2.8.x
 
-* Add better mgf management : fixes some error + allow user to specify acquisition to associate mgf to
-* Remove "Analysis Request" management until new implementation
-* Fix error on data cache which needed server reboot
+* Add better mgf management: fixes some error + allow user to specify acquisition to associate mgf to
+* Add "Category" in Study (Sample and Acquisition) to distinguish between Research, QC, Service or Control studies
+* Remove "Analysis Request" management until the new implementation
+* Fix error on the data cache which needed server reboot
 * Allow more FTP configuration (port/authentification mode)
 * Modify Build to use batch instead of exe
 * update to Java 17 & dependencies 
-* Add config with client-side config file (`epims-client.properties`) and where `epims-id_rsa` private key for FTP should be.
+* Add config with the client-side config file (`epims-client.properties`) and where `epims-id_rsa` private key for FTP should be.
 
 ## Client configuration (config folder)
 
