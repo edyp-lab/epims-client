@@ -71,6 +71,10 @@ public class AcquisitionsListPanel extends HourGlassPanel {
         m_model = new AcquisitionTableModel(editable);
         table.setModel(m_model);
 
+        table.getColumnExt(m_model.getColumnName(AcquisitionTableModel.COLTYPE_METHOD_NAME)).setVisible(false);
+        table.getColumnExt(m_model.getColumnName(AcquisitionTableModel.COLTYPE_INJECTION_VOLUME)).setVisible(false);
+        table.getColumnExt(m_model.getColumnName(AcquisitionTableModel.COLTYPE_VIAL_INFORMATION)).setVisible(false);
+
         JScrollPane tableScrollPane = new JScrollPane(table);
 
         table.setFillsViewportHeight(true);

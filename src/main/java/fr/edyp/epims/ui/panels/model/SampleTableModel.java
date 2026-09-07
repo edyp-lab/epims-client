@@ -59,10 +59,11 @@ public class SampleTableModel extends AbstractTableModel implements DecoratedTab
     public static final int COLTYPE_LAST_STEP = 6;
     public static final int COLTYPE_CREATOR = 7;
     public static final int COLTYPE_STATUS = 8;
+    public static final int COLTYPE_CATEGORY = 9;
 
 
-    private static final String[] m_columnNames = {"Name", "Original Name", "Description", "Specie", "Acquisition", "#acq", "Last Step", "Creator", "Status"};
-    private static final String[] m_columnTooltips = {"Name", "Original Name", "Description", "Specie", "Acquisition", "#acq", "Last Step", "Creator", "Status"};
+    private static final String[] m_columnNames = {"Name", "Original Name", "Description", "Specie", "Acquisition", "#acq", "Last Step", "Creator", "Status", "Category"};
+    private static final String[] m_columnTooltips = {"Name", "Original Name", "Description", "Specie", "Acquisition", "#acq", "Last Step", "Creator", "Status", "Category"};
 
     private ArrayList<SampleJson> m_samples = new ArrayList<>(0);
 
@@ -128,6 +129,7 @@ public class SampleTableModel extends AbstractTableModel implements DecoratedTab
             case COLTYPE_LAST_STEP:
             case COLTYPE_CREATOR:
             case COLTYPE_STATUS:
+            case COLTYPE_CATEGORY:
                 return String.class;
             case COLTYPE_ACQ:
                 return Integer.class;
@@ -220,6 +222,9 @@ public class SampleTableModel extends AbstractTableModel implements DecoratedTab
             }
             case COLTYPE_STATUS: {
                 return s.getStatus();
+            }
+            case COLTYPE_CATEGORY: {
+                return (s.getCategory() == null) ? "" : s.getCategory().name();
             }
         }
 

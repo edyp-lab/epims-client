@@ -48,11 +48,12 @@ public class AcquisitionSearchTableModel extends AbstractTableModel implements D
     public static final int COLTYPE_DESCRIPTION = 4;
     public static final int COLTYPE_STUDY = 5;
     public static final int COLTYPE_RESPONSIBLE = 6;
+    public static final int COLTYPE_CATEGORY = 7;
 
 
 
-    private static final String[] m_columnNames = {"Name", "Sample", "Date", "Instrument", "Description", "Study", "Owner"};
-    private static final String[] m_columnTooltips = {"Name", "Sample", "Date", "Instrument", "Description", "Study", "Owner"};
+    private static final String[] m_columnNames = {"Name", "Sample", "Date", "Instrument", "Description", "Study", "Owner", "Category"};
+    private static final String[] m_columnTooltips = {"Name", "Sample", "Date", "Instrument", "Description", "Study", "Owner", "Category"};
 
     private RendererMouseCallback m_callbackName;
     private RendererMouseCallback m_callbackStudy;
@@ -133,6 +134,12 @@ public class AcquisitionSearchTableModel extends AbstractTableModel implements D
             }
             case COLTYPE_RESPONSIBLE: {
                 return DataManager.getNameFromActorKey(p.getSampleActorKey());
+            }
+            case COLTYPE_CATEGORY: {
+                if (p.getAcquisitionJson() == null) {
+                    return "";
+                }
+                return (p.getAcquisitionJson().getCategory() == null) ? "" : p.getAcquisitionJson().getCategory().name();
             }
         }
 

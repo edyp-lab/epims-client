@@ -51,11 +51,15 @@ public class AcquisitionTableModel extends AbstractTableModel implements Decorat
     public static final int COLTYPE_INSTRUMENT = 3;
     public static final int COLTYPE_DESCRIPTION = 4;
     public static final int COLTYPE_RESPONSIBLE = 5;
+    public static final int COLTYPE_CATEGORY = 6;
+    public static final int COLTYPE_METHOD_NAME = 7;
+    public static final int COLTYPE_INJECTION_VOLUME = 8;
+    public static final int COLTYPE_VIAL_INFORMATION = 9;
 
 
 
-    private static final String[] m_columnNames = {"Name", "Sample", "Date", "Instrument", "Description", "Owner"};
-    private static final String[] m_columnTooltips = {"Name", "Sample", "Date", "Instrument", "Description", "Owner"};
+    private static final String[] m_columnNames = {"Name", "Sample", "Date", "Instrument", "Description", "Owner", "Category", "Method Name", "Injection Volume", "Vial Information"};
+    private static final String[] m_columnTooltips = {"Name", "Sample", "Date", "Instrument", "Description", "Owner", "Category", "Method Name", "Injection Volume", "Vial Information"};
 
 
     private ArrayList<ProtocolApplicationJson> m_values = new ArrayList<>();
@@ -108,6 +112,9 @@ public class AcquisitionTableModel extends AbstractTableModel implements Decorat
         if (col == COLTYPE_DATE) {
             return Date.class;
         }
+        if (col == COLTYPE_INJECTION_VOLUME) {
+            return Float.class;
+        }
         return String.class;
     }
 
@@ -141,6 +148,32 @@ public class AcquisitionTableModel extends AbstractTableModel implements Decorat
                 return p.getComment();
             case COLTYPE_RESPONSIBLE: {
                 return DataManager.getNameFromActorKey(p.getActorKey());
+            }
+            case COLTYPE_CATEGORY: {
+                if (p.getAcquisitionJson() == null) {
+                    return "";
+                }
+                return (p.getAcquisitionJson().getCategory() == null) ? "" : p.getAcquisitionJson().getCategory().name();
+            }
+            case COLTYPE_METHOD_NAME: {
+                if (p.getAcquisitionJson() == null) {
+                    return "";
+                }
+                String methodName = p.getAcquisitionJson().getMethodName();
+                return (methodName == null) ? "" : methodName;
+            }
+            case COLTYPE_INJECTION_VOLUME: {
+                if (p.getAcquisitionJson() == null) {
+                    return null;
+                }
+                return p.getAcquisitionJson().getInjectionVolume();
+            }
+            case COLTYPE_VIAL_INFORMATION: {
+                if (p.getAcquisitionJson() == null) {
+                    return "";
+                }
+                String vialInfo = p.getAcquisitionJson().getVialInformation();
+                return (vialInfo == null) ? "" : vialInfo;
             }
         }
 

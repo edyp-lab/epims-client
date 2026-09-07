@@ -45,10 +45,11 @@ public class StudyTableModel extends AbstractTableModel implements DecoratedTabl
     public static final int COLTYPE_RESPONSABLE = 3;
     public static final int COLTYPE_DATE = 4;
     public static final int COLTYPE_STATUS = 5;
+    public static final int COLTYPE_CATEGORY = 6;
 
 
-    private static final String[] m_columnNames = {"Title", "Nomenclature", "Description", "Owner", "Date", "Status"};
-    private static final String[] m_columnTooltips = {"Titre", "Nomenclature", "Description of the Project", "Project Responsible", "Creation Date", "Project Status"};
+    private static final String[] m_columnNames = {"Title", "Nomenclature", "Description", "Owner", "Date", "Status", "Category"};
+    private static final String[] m_columnTooltips = {"Titre", "Nomenclature", "Description of the Project", "Project Responsible", "Creation Date", "Project Status", "Category"};
 
     private ArrayList<StudyJson> m_studiesList = new ArrayList<>();
 
@@ -128,6 +129,8 @@ public class StudyTableModel extends AbstractTableModel implements DecoratedTabl
                 } else {
                     return "Closed";
                 }
+            case COLTYPE_CATEGORY:
+                return (s.getCategory() == null) ? "" : s.getCategory().name();
         }
         return "";
 
