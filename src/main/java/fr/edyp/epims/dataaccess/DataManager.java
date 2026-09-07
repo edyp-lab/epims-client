@@ -1035,7 +1035,7 @@ public class DataManager {
 
             @Override
             public void run(boolean success, long taskId, boolean finished) {
-                LoggerFactory.getLogger("Epims.Client").debug("Load data for FTP ... DONE ("+finished+"). Result "+success);
+              LoggerFactory.getLogger("Epims.Client").debug("Load data for FTP ... DONE ({}). Result {}", finished, success);
                 if (success) {
                     m_ftpConfiguration = ftpConfiguration[0];
                     // Apply client-side override for FTP host if provided
@@ -1043,12 +1043,18 @@ public class DataManager {
                         String overrideHost = EPimsClientPreferences.getFtpHost();
                         if (overrideHost != null && !overrideHost.isEmpty()) {
                             m_ftpConfiguration.setHost(overrideHost);
+                          LoggerFactory.getLogger("Epims.Client").info("Overwrite host {}", overrideHost);
                         }
                         Integer overridePort = EPimsClientPreferences.getFtpPort();
                         if (overridePort != null) {
                             m_ftpConfiguration.setPort(overridePort);
+                          LoggerFactory.getLogger("Epims.Client").info("Overwrite port {}", overridePort);
                         }
-
+                        String overrideUser = EPimsClientPreferences.getFtpLogin();
+                        if (overrideUser != null) {
+                            m_ftpConfiguration.setLogin(overrideUser);
+                          LoggerFactory.getLogger("Epims.Client").info("Overwrite user {}", overrideUser);
+                        }
                     } catch (Throwable t) {
                         // ignore override errors
                     }

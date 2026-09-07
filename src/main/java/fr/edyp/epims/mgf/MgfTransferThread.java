@@ -190,13 +190,19 @@ public class MgfTransferThread extends Thread {
                     }
 
                     // look for or create sub MGF directory
-                    ServerFile submgfDirectory = findOrCreateDirectory(mgfDirectory, action.getDirectory());
-                    if (submgfDirectory == null) {
+                    String[] mgfFinalPaths = action.getPaths();
+                    ServerFile submgfDirectory = mgfDirectory;
+                    for(int i = 0; i<mgfFinalPaths.length; i++){
+                      submgfDirectory = findOrCreateDirectory(submgfDirectory, mgfFinalPaths[i]);
+                      if (submgfDirectory == null) {
                         action.setStatus(MgfFileInfo.StatusEnum.FAILED);
-                        action.setErrorMessage("Can not find or create "+action.getDirectory()+" directory");
+                        action.setErrorMessage("Can not find or create " + action.getDirectory() + " directory");
                         m_model.dataChanged(action);
-                        continue;
+                        break;
+                      }
                     }
+                    if(submgfDirectory == null)
+                        continue;
 
                     // --- UPLOAD to sub mgf directory MGF/submgfDirectory
                     submgfDirectory.uploadto(action.getFile());

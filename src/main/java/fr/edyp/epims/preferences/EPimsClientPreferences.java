@@ -69,6 +69,10 @@ public final class EPimsClientPreferences {
         return get("ftp.host");
     }
 
+    public static String getFtpLogin() {
+        return get("ftp.log");
+    }
+
     public static Integer getFtpPort() {
         String v = get("ftp.port");
         if (v == null || v.trim().isEmpty()) return null;
@@ -80,9 +84,6 @@ public final class EPimsClientPreferences {
         }
     }
 
-//    public static String getFtpUser() {
-//        return get("ftp.user");
-//    }
 
     public static String getFtpKeyPath() {
         String path = get("ftp.keyPath");

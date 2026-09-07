@@ -101,6 +101,12 @@ public class MgfFileInfo {
         return m_directory;
     }
 
+    public String[] getPaths(){
+        if(m_directory != null)
+            return m_directory.split("/");
+        return new String[0];
+    }
+
     public File getFile() {
         return m_file;
     }
