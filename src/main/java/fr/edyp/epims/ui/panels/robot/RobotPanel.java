@@ -175,7 +175,7 @@ public class RobotPanel extends HourGlassPanel {
         m_tabbedPane.setEnabledAt(0, !modified);
 
         // allow only robot tabbed pane when there is a plate modified
-        MainFrame.getMainWindow().enableTabbedPane(!modified, !modified, !modified,true, !modified, false);
+        MainFrame.getMainWindow().enableTabbedPane(!modified, !modified, !modified,true, !modified,!modified, false);
 
     }
 

@@ -34,6 +34,7 @@ import fr.edyp.epims.ui.common.*;
 import fr.edyp.epims.ui.panels.AcquisitionsPanel;
 import fr.edyp.epims.ui.panels.ActivitiesPanel;
 import fr.edyp.epims.ui.panels.admin.AdminPanel;
+import fr.edyp.epims.ui.panels.singlecell.CellenOneManipsPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,14 @@ public class MainFrame extends JFrame {
 
     private static final Logger log = LoggerFactory.getLogger(MainFrame.class);
     private static MainFrame m_singleton;
+
+    private int ACTIVITY_TAB_INDEX = 0;
+    private int ACQ_TAB_INDEX = 1;
+    private int MGF_TAB_INDEX= 2;
+    private int ROBOT_TAB_INDEX=3;
+    private int CELLENONE_TAB_INDEX=4;
+    private int ANALYSE_REQUEST_TAB_INDEX=5;
+    private int ADMIN_TAB_INDEX=6;
 
     private JLabel m_loginLabel;
     private JLabel m_roleLabel;
@@ -130,21 +139,15 @@ public class MainFrame extends JFrame {
 
         JMenu fileMenu = new JMenu("File");
         JMenuItem logout = new JMenuItem("Logout");
-        logout.addActionListener(new ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                if (askForLogout() ) {
-                    disconnect();
-                }
+        logout.addActionListener(evt -> {
+            if (askForLogout() ) {
+                disconnect();
             }
         });
 
 
         JMenuItem quit = new JMenuItem("Quit");
-        quit.addActionListener(new ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                askForExit();
-            }
-        });
+        quit.addActionListener(evt -> askForExit());
 
         fileMenu.add(logout);
         fileMenu.add(quit);
@@ -197,12 +200,9 @@ public class MainFrame extends JFrame {
         c.gridx++;
         p.add(m_logoutButton, c);
 
-        m_logoutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (askForLogout() ) {
-                    disconnect();
-                }
+        m_logoutButton.addActionListener(e -> {
+            if (askForLogout() ) {
+                disconnect();
             }
         });
 
@@ -229,16 +229,12 @@ public class MainFrame extends JFrame {
         c.weighty = 1;
         panel.add(tabbedPane, c);
 
-        tabbedPane.addChangeListener(new ChangeListener() {
-
-            public void stateChanged(ChangeEvent e) {
-
-                if (tabbedPane.getSelectedComponent().equals(RobotPanel.getPanel())) {
-                    RobotPanel.getPanel().loadData();
-                } else {
-                    // so we load fresh data each time, we open the robot panel
-                    RobotPanel.getPanel().reinit();
-                }
+        tabbedPane.addChangeListener(e -> {
+            if (tabbedPane.getSelectedComponent().equals(RobotPanel.getPanel())) {
+                RobotPanel.getPanel().loadData();
+            } else {
+                // so we load fresh data each time, we open the robot panel
+                RobotPanel.getPanel().reinit();
             }
         });
 
@@ -253,57 +249,60 @@ public class MainFrame extends JFrame {
 
         JPanel activityPanel = ActivitiesPanel.getActivitiesPanel();
         m_tabbedPane.addTab("Activities", activityPanel);
-        m_tabbedPane.setIconAt(0, IconManager.getIcon(IconManager.IconType.ACTIVITIES));
+        m_tabbedPane.setIconAt(ACTIVITY_TAB_INDEX, IconManager.getIcon(IconManager.IconType.ACTIVITIES));
 
         JPanel acquisitionPanel = AcquisitionsPanel.getAcquisitionsPanel();
         m_tabbedPane.addTab("Acquisitions", acquisitionPanel);
-        m_tabbedPane.setIconAt(1, IconManager.getIcon(IconManager.IconType.ACQUISITIONS));
+        m_tabbedPane.setIconAt(ACQ_TAB_INDEX, IconManager.getIcon(IconManager.IconType.ACQUISITIONS));
 
         JPanel mgfPanel = MgfPanel.getPanel();
         m_tabbedPane.addTab("MGF Files", mgfPanel);
-        m_tabbedPane.setIconAt(2, IconManager.getIcon(IconManager.IconType.MGFFILE));
+        m_tabbedPane.setIconAt(MGF_TAB_INDEX, IconManager.getIcon(IconManager.IconType.MGFFILE));
 
         JPanel robotPanel = RobotPanel.getPanel();
         m_tabbedPane.addTab("Robot", robotPanel);
-        m_tabbedPane.setIconAt(3, IconManager.getIcon(IconManager.IconType.ROBOT));
+        m_tabbedPane.setIconAt(ROBOT_TAB_INDEX, IconManager.getIcon(IconManager.IconType.ROBOT));
+
+        JPanel cellenOneManipsPanel = CellenOneManipsPanel.getPanel();
+        m_tabbedPane.addTab("CellenOne Manips", cellenOneManipsPanel);
+        m_tabbedPane.setIconAt(CELLENONE_TAB_INDEX, IconManager.getIcon(IconManager.IconType.IMPORT_CO_MANIPS));
 
         JPanel analysesRequestsPanel = AnalysesRequestsPanel.getPanel();
         m_tabbedPane.addTab("Analyses Requests", analysesRequestsPanel);
-        m_tabbedPane.setIconAt(4, IconManager.getIcon(IconManager.IconType.ANALYSE_REQUEST));
+        m_tabbedPane.setIconAt(ANALYSE_REQUEST_TAB_INDEX, IconManager.getIcon(IconManager.IconType.ANALYSE_REQUEST));
 
         JPanel adminPanel = AdminPanel.getAdminPanel();
         m_tabbedPane.addTab("Admin", adminPanel);
-        m_tabbedPane.setIconAt(5, IconManager.getIcon(IconManager.IconType.ADMIN));
+        m_tabbedPane.setIconAt(ADMIN_TAB_INDEX, IconManager.getIcon(IconManager.IconType.ADMIN));
 
+        enableTabbedPane(false, false, false, false, false, false, false);
 
-        enableTabbedPane(false, false, false, false, false, false);
+      //add the Listener
+      m_tabbedPane.addChangeListener(e -> {
+          // Analyses Requests
+          if (m_tabbedPane.getSelectedIndex() ==ANALYSE_REQUEST_TAB_INDEX) {
+              AnalysesRequestsPanel.getPanel().analysesServerConnection();
+          } else if (m_tabbedPane.getSelectedIndex() == MGF_TAB_INDEX) {
+              MgfPanel.getPanel().loadData(true, true);
+          } else if (m_tabbedPane.getSelectedIndex() == CELLENONE_TAB_INDEX) {
+              CellenOneManipsPanel.getPanel().loadData();
+          }
 
-        m_tabbedPane.addChangeListener(new ChangeListener() { //add the Listener
-
-            public void stateChanged(ChangeEvent e) {
-
-                // Analyses Requests
-                if (m_tabbedPane.getSelectedIndex() == 4) {
-                    AnalysesRequestsPanel.getPanel().analysesServerConnection();
-                } else if (m_tabbedPane.getSelectedIndex() == 2) {
-                    MgfPanel.getPanel().loadData(true, true);
-                }
-
-            }
-        });
+      });
 
 
         return m_tabbedPane;
     }
 
-    public void enableTabbedPane(boolean activities, boolean acquisitions, boolean mgf, boolean robot, boolean admin, boolean analyses) {
+    public void enableTabbedPane(boolean activities, boolean acquisitions, boolean mgf, boolean robot, boolean singleCell, boolean admin, boolean analyses) {
 
-        m_tabbedPane.setEnabledAt(0, activities);
-        m_tabbedPane.setEnabledAt(1, acquisitions);
-        m_tabbedPane.setEnabledAt(2, mgf);
-        m_tabbedPane.setEnabledAt(3, robot);
-        m_tabbedPane.setEnabledAt(4, analyses );
-        m_tabbedPane.setEnabledAt(5, admin && (DataManager.isAdmin() || DataManager.isAdminUser()) );
+        m_tabbedPane.setEnabledAt(ACTIVITY_TAB_INDEX, activities);
+        m_tabbedPane.setEnabledAt(ACQ_TAB_INDEX, acquisitions);
+        m_tabbedPane.setEnabledAt(MGF_TAB_INDEX, mgf);
+        m_tabbedPane.setEnabledAt(ROBOT_TAB_INDEX, robot);
+        m_tabbedPane.setEnabledAt(ANALYSE_REQUEST_TAB_INDEX, analyses );
+        m_tabbedPane.setEnabledAt(CELLENONE_TAB_INDEX, singleCell);
+        m_tabbedPane.setEnabledAt(ADMIN_TAB_INDEX, admin && (DataManager.isAdmin() || DataManager.isAdminUser()) );
         AdminPanel.getAdminPanel().setArchiveEnabled(admin && DataManager.isAdmin());
         
 
@@ -312,7 +311,7 @@ public class MainFrame extends JFrame {
     }
 
     public void selectActivitiesTabbedPane() {
-        m_tabbedPane.setSelectedIndex(0);
+        m_tabbedPane.setSelectedIndex(ACTIVITY_TAB_INDEX);
     }
 
 
@@ -383,7 +382,7 @@ public class MainFrame extends JFrame {
                 m_loginLabel.setText(contact.getFirstName() + " " + contact.getLastName());
                 m_roleLabel.setText(DataManager.getRoleTitle());
 
-                enableTabbedPane(true, true, true, true, true, false);
+                enableTabbedPane(true, true, true, true, true, true, false);
 
                 m_logoutButton.setVisible(true);
                 ActivitiesPanel.getActivitiesPanel().connect();
@@ -409,10 +408,11 @@ public class MainFrame extends JFrame {
         AcquisitionsPanel.getAcquisitionsPanel().reinit();
         RobotPanel.getPanel().reinit();
         AnalysesRequestsPanel.getPanel().reinit();
+        CellenOneManipsPanel.getPanel().reinit();
         AdminPanel.getAdminPanel().reinit();
 
         m_tabbedPane.setSelectedIndex(0);
-        enableTabbedPane(false, false, false, false, false, false);
+        enableTabbedPane(false, false, false, false, false, false, false);
 
 
         connection();

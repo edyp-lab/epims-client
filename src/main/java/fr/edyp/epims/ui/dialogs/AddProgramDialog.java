@@ -30,7 +30,7 @@ import fr.edyp.epims.ui.common.FlatButton;
 import fr.edyp.epims.ui.common.IconManager;
 import fr.edyp.epims.ui.common.InfoDialog;
 import fr.edyp.epims.ui.panels.admin.CreateOrModifyUserDialog;
-import fr.edyp.epims.ui.panels.renderers.ContactDisplayCellRenderer;
+import fr.edyp.epims.ui.renderers.ContactDisplayCellRenderer;
 import fr.edyp.epims.ui.renderers.ActorComboBoxRenderer;
 import fr.edyp.epims.util.UtilDate;
 

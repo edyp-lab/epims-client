@@ -150,7 +150,8 @@ public class IconManager {
         HELP_ANALYSIS_STEP2_3,
         SELECT_STUDY_REF,
         ARROW_IMPORT,
-        IMPORT_ANALYSE
+        IMPORT_ANALYSE,
+        IMPORT_CO_MANIPS
     }
 
     private final static HashMap<IconType, ImageIcon> m_iconMap = new HashMap<>();
@@ -411,6 +412,8 @@ public class IconManager {
                 return "arrow-import.png";
             case IMPORT_ANALYSE:
                 return "import-analyse.png";
+            case IMPORT_CO_MANIPS:
+                return "import_plate_co.png";
         }
 
 

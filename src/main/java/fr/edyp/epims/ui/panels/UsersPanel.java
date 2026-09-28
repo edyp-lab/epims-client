@@ -33,7 +33,7 @@ import fr.edyp.epims.ui.common.InfoDialog;
 import fr.edyp.epims.ui.dialogs.AddUserDialog;
 import fr.edyp.epims.ui.dialogs.UpdateDataDialog;
 import fr.edyp.epims.ui.dialogs.UserInfoDialog;
-import fr.edyp.epims.ui.panels.renderers.ContactClickableCellRenderer;
+import fr.edyp.epims.ui.renderers.ContactClickableCellRenderer;
 
 import javax.swing.*;
 import javax.swing.border.Border;

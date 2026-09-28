@@ -15,24 +15,27 @@
  * along with this program; If not, see <http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html>.
  */
 
-package fr.edyp.epims.ui.panels.renderers;
+package fr.edyp.epims.ui.renderers;
 
 import fr.edyp.epims.json.ContactJson;
+import fr.edyp.epims.ui.common.HypertextLabel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 
 /**
  *
- * Renderer for a Table Cell displaying a Contact
+ * Renderer for a Table Cell displaying a Contact as an hypertext (so clickable)
  *
  * @author JM235353
  *
  */
-public class ContactDisplayCellRenderer  extends DefaultListCellRenderer {
+public class ContactClickableCellRenderer extends HypertextLabel /*DefaultListCellRenderer*/ implements ListCellRenderer, Serializable {
 
 
-    public ContactDisplayCellRenderer() {
+    public ContactClickableCellRenderer() {
+        super("", null);
     }
 
     /*
@@ -47,7 +50,16 @@ public class ContactDisplayCellRenderer  extends DefaultListCellRenderer {
             boolean isSelected,
             boolean cellHasFocus) {
 
-        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        //super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+        if (isSelected) {
+            setBackground(list.getSelectionBackground());
+            //setForeground(list.getSelectionForeground());
+        } else {
+            setBackground(list.getBackground());
+            //setForeground(list.getForeground());
+        }
+        //setFont(list.getFont());
 
         ContactJson contact = (ContactJson) value;
         setText(contact.getLastName() + " " + contact.getFirstName());
@@ -56,3 +68,8 @@ public class ContactDisplayCellRenderer  extends DefaultListCellRenderer {
         return this;
     }
 }
+
+
+
+
+
