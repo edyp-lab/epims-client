@@ -153,7 +153,10 @@ public class AdminCompanyPanel extends JPanel implements DataManager.DataManager
                                 m_dataLoaded = false;
                                 loadData(companyList[0]);
                             } else {
-                                InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, "Server Error", "Server is down or the company already exists");
+                                String error = getTaskError() == null
+                                        ? "Server is down or the company already exists"
+                                        : getTaskError().toString();
+                                InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, "Server Error", error);
                                 infoDialog.centerToWindow(MainFrame.getMainWindow());
                                 infoDialog.setVisible(true);
                             }
@@ -205,7 +208,10 @@ public class AdminCompanyPanel extends JPanel implements DataManager.DataManager
                                 m_dataLoaded = false;
                                 loadData(companyList[0]);
                             } else {
-                                InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, "Server Error", "Server is down or there is an internal error");
+                                String error = getTaskError() == null
+                                        ? "Server is down or there is an internal error"
+                                        : getTaskError().toString();
+                                InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, "Server Error", error);
                                 infoDialog.centerToWindow(MainFrame.getMainWindow());
                                 infoDialog.setVisible(true);
                             }

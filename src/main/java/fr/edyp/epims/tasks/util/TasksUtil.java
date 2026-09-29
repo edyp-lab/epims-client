@@ -69,7 +69,11 @@ public class TasksUtil {
       ObjectMapper mapper = new ObjectMapper();
       mapper.registerModule(new JavaTimeModule());
       ErrorResponse error = mapper.readValue(sce.getResponseBodyAsString(), ErrorResponse.class);
-      taskError = new TaskError("Error " + error.getErrorCode(), error.getMessage());
+      String message = error.getMessage();
+      if (error.getDetails() != null) {
+        message += " - " + error.getDetails();
+      }
+      taskError = new TaskError("Error " + error.getErrorCode(), message);
     } catch (Exception parseException) {
       parseException.printStackTrace();
       taskError = new TaskError("HTTP " + sce.getStatusCode(), sce.getMessage());

@@ -19,10 +19,12 @@ package fr.edyp.epims.tasks;
 
 import fr.edyp.epims.json.CompanyJson;
 import fr.edyp.epims.dataaccess.*;
+import fr.edyp.epims.tasks.util.TasksUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -75,10 +77,13 @@ public class CreateCompanyTask extends AbstractAuthenticateDatabaseTask {
             m_companyJson[0] = companyJson;
 
 
+        } catch (HttpStatusCodeException e) {
+
+            m_taskError = TasksUtil.fromStatusCodeException(e);
+
+            return false;
         } catch (RestClientResponseException e) {
-
             m_taskError = new TaskError(e);
-
             return false;
         } catch (Exception e) {
             m_taskError = new TaskError(e);

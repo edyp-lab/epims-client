@@ -20,8 +20,13 @@ package fr.edyp.epims.ui.panels.singlecell;
 import fr.edyp.epims.MainFrame;
 import fr.edyp.epims.dataaccess.AbstractDatabaseCallback;
 import fr.edyp.epims.dataaccess.AccessDatabaseThread;
+import fr.edyp.epims.dataaccess.DataManager;
 import fr.edyp.epims.json.CellenOneManipJson;
+import fr.edyp.epims.json.ProjectJson;
+import fr.edyp.epims.json.StudyJson;
+import fr.edyp.epims.tasks.singlecell.ImportCellenOneManipTask;
 import fr.edyp.epims.tasks.singlecell.LoadCellenOneManipsTask;
+import fr.edyp.epims.tasks.singlecell.LoadCellenOneStudiesTask;
 import fr.edyp.epims.ui.common.DecoratedTable;
 import fr.edyp.epims.ui.common.FlatButton;
 import fr.edyp.epims.ui.common.HourGlassPanel;
@@ -34,8 +39,14 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Panel displaying SingleCell CellenOne Manipulations and their associated Runs
@@ -121,12 +132,14 @@ public class CellenOneManipsPanel extends HourGlassPanel {
                     if (selectedRow != -1) {
                         int modelRow = m_manipTable.convertRowIndexToModel(selectedRow);
                         CellenOneManipJson selectedManip = m_manipTableModel.getManipAt(modelRow);
+                        m_importManipButton.setEnabled(selectedManip != null);
                         if (selectedManip != null) {
                             m_runTableModel.setRuns(selectedManip.getRuns());
                         } else {
                             m_runTableModel.clear();
                         }
                     } else {
+                        m_importManipButton.setEnabled(false);
                         m_runTableModel.clear();
                     }
                 }
@@ -151,10 +164,108 @@ public class CellenOneManipsPanel extends HourGlassPanel {
     }
 
     public void importManip() {
-        int row = m_manipTable.getSelectedRow();
-        int rowInModel = m_manipTable.convertRowIndexToModel(row);
+        int selectedRow = m_manipTable.getSelectedRow();
+        if (selectedRow == -1) {
+            return;
+        }
+        int rowInModel = m_manipTable.convertRowIndexToModel(selectedRow);
         CellenOneManipJson manip = m_manipTableModel.getManipAt(rowInModel);
-        JOptionPane.showMessageDialog(this.getParent(), "Import CellenOne Manip "+manip.getName(), "Import Manip", JOptionPane.INFORMATION_MESSAGE);
+        if (manip == null) {
+            return;
+        }
+
+        final ArrayList<StudyJson> studies = new ArrayList<>();
+        AbstractDatabaseCallback callback = new AbstractDatabaseCallback() {
+            @Override
+            public boolean mustBeCalledInAWT() {
+                return true;
+            }
+
+            @Override
+            public void run(boolean success, long taskId, boolean finished) {
+                if (success) {
+                    selectStudyAndImport(manip, studies);
+                } else {
+                    String details = getTaskError() == null ? "The server load studies request failed." : getTaskError().toString();
+                    showError("Load Studies Failed", details);
+                }
+            }
+        };
+        AccessDatabaseThread.getAccessDatabaseThread().addTask(new LoadCellenOneStudiesTask(callback, studies));
+    }
+
+    private void selectStudyAndImport(CellenOneManipJson manip, List<StudyJson> studies) {
+        if (studies.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No Study is available for this import.", "Import Manip", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Studies");
+        Map<String, DefaultMutableTreeNode> projectNodes = new LinkedHashMap<>();
+        Map<DefaultMutableTreeNode, StudyJson> studyNodes = new LinkedHashMap<>();
+        studies.stream().sorted(Comparator.comparing(StudyJson::getTitle, Comparator.nullsLast(String::compareToIgnoreCase))).forEach(study -> {
+            ProjectJson project = study.getProjectId() == -1 ? null : DataManager.getProject(study.getProjectId());
+            String projectName = project == null ? "Orphan Studies" : project.getTitle();
+            DefaultMutableTreeNode projectNode = projectNodes.computeIfAbsent(projectName, name -> {
+                DefaultMutableTreeNode node = new DefaultMutableTreeNode(name);
+                root.add(node);
+                return node;
+            });
+            DefaultMutableTreeNode studyNode = new DefaultMutableTreeNode(study.getTitle());
+            projectNode.add(studyNode);
+            studyNodes.put(studyNode, study);
+        });
+
+        JTree tree = new JTree(root);
+        tree.expandRow(0);
+        JScrollPane scrollPane = new JScrollPane(tree);
+        scrollPane.setPreferredSize(new Dimension(420, 280));
+        int result = JOptionPane.showConfirmDialog(this, scrollPane, "Select Study for " + manip.getName(),
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+        TreePath path = tree.getSelectionPath();
+        if (path == null || !(path.getLastPathComponent() instanceof DefaultMutableTreeNode)) {
+            return;
+        }
+        StudyJson selectedStudy = studyNodes.get(path.getLastPathComponent());
+        if (selectedStudy == null) {
+            JOptionPane.showMessageDialog(this, "Please select a Study.", "Import Manip", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        importManip(manip, selectedStudy);
+    }
+
+    private void importManip(CellenOneManipJson manip, StudyJson study) {
+        m_importManipButton.setEnabled(false);
+        AbstractDatabaseCallback callback = new AbstractDatabaseCallback() {
+            @Override
+            public boolean mustBeCalledInAWT() {
+                return true;
+            }
+
+            @Override
+            public void run(boolean success, long taskId, boolean finished) {
+                m_importManipButton.setEnabled(true);
+                if (success) {
+                    JOptionPane.showMessageDialog(CellenOneManipsPanel.this,
+                            "CellenOne Manip " + manip.getName() + " imported in Study " + study.getTitle() + ".",
+                            "Import Manip", JOptionPane.INFORMATION_MESSAGE);
+                    loadData(true);
+                } else {
+                    String details = getTaskError() == null ? "The server import data request failed." : getTaskError().toString();
+                    showError("Import Failed", details);
+                }
+            }
+        };
+        AccessDatabaseThread.getAccessDatabaseThread().addTask(new ImportCellenOneManipTask(callback, manip.getName(), study.getId()));
+    }
+
+    private void showError(String title, String details) {
+        InfoDialog infoDialog = new InfoDialog(MainFrame.getMainWindow(), InfoDialog.InfoType.WARNING, title, details);
+        infoDialog.centerToWindow(MainFrame.getMainWindow());
+        infoDialog.setVisible(true);
     }
 
     public void loadData() {
