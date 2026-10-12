@@ -19,6 +19,7 @@ package fr.edyp.epims.tasks.singlecell;
 
 import fr.edyp.epims.dataaccess.*;
 import fr.edyp.epims.json.CellenOneManipJson;
+import fr.edyp.epims.json.StudyJson;
 import fr.edyp.epims.tasks.util.TasksUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -39,14 +40,14 @@ public class LoadCellenOneManipsTask extends AbstractAuthenticateDatabaseTask {
 
     public LoadCellenOneManipsTask(AbstractDatabaseCallback callback, ArrayList<CellenOneManipJson> manips) {
         super(callback, new TaskInfo("Load list of CellenOne Manips", false, null), TokenManager.TOKEN_EPIMS_SERVER);
-        URL = DataManager.getServerURL() + "/api/cellenonemanips";
+        URL = DataManager.getServerURL() + "/api/cellenonemanipszip";
         m_manips = manips;
     }
 
     @Override
     public boolean fetchSecuredData(HttpEntity<String> entity, RestTemplate restTemplate) {
         try {
-            ResponseEntity<CellenOneManipJson[]> response = restTemplate.exchange(URL, HttpMethod.POST, entity, CellenOneManipJson[].class);
+            ResponseEntity<CellenOneManipJson[]> response = restTemplate.exchange(URL, HttpMethod.GET, entity, CellenOneManipJson[].class);
 
             m_taskError = TasksUtil.testStatusCode(response, restTemplate, entity, URL);
             if (m_taskError != null) {

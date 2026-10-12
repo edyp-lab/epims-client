@@ -36,7 +36,7 @@ import java.util.HashMap;
  */
 public class IconManager {
 
-    private static String IMAGES_PATH ="fr/edyp/epims/ui/images/";
+    private final static String IMAGES_PATH ="fr/edyp/epims/ui/images/";
 
     public enum IconType {
         EPIMS_LOGO16,
@@ -68,6 +68,7 @@ public class IconManager {
         INSTRUMENT,
         WAVE,
         SAMPLE,
+        SAMPLE_HIERARCHY,
         ADD_SAMPLE,
         ADD_TO_ROBOT,
         LOCK,
@@ -83,6 +84,7 @@ public class IconManager {
         EXCLAMATION,
         INFORMATION,
         BACK,
+        NEXT,
         QUESTION,
         DEFAULT,
         CANCEL,
@@ -207,16 +209,11 @@ public class IconManager {
             case FAVOURITES:
                 return "star.png";
             case ADD_USER: {
-                switch (getPeriod()) {
-                    case USER:
-                        return "add-user.png";
-                    case CHRISTMAS:
-                        return "snowman-hat-add.png";
-                    case SNOW:
-                        return "snowman-hat-add.png";
-                    case WOMAN_WEEK:
-                        return "user-red-female-add.png";
-                }
+              return switch (getPeriod()) {
+                case USER -> "add-user.png";
+                case CHRISTMAS, SNOW -> "snowman-hat-add.png";
+                case WOMAN_WEEK -> "user-red-female-add.png";
+              };
             }
             case ROBOT:
                 return "robot.png";
@@ -244,6 +241,8 @@ public class IconManager {
                 return "wave.png";
             case SAMPLE:
                 return "sample.png";
+            case SAMPLE_HIERARCHY:
+                return "sample_hierarchy.png";
             case ADD_SAMPLE:
                 return "add-sample.png";
             case ADD_TO_ROBOT:
@@ -274,6 +273,8 @@ public class IconManager {
                 return "information.png";
             case BACK:
                 return "arrow-180.png";
+          case NEXT:
+              return "arrow.png";
             case QUESTION:
                 return "question.png";
             case DEFAULT:
@@ -431,9 +432,7 @@ public class IconManager {
         g2d.setColor(Color.black);
         g2d.drawRect(0,0,15,15);
 
-        ImageIcon icon = new ImageIcon(img);
-
-        return icon;
+      return new ImageIcon(img);
 
     }
 
@@ -448,10 +447,10 @@ public class IconManager {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
 
-        if (c.get(Calendar.MONTH) == 11) {
+        if (c.get(Calendar.MONTH) == Calendar.DECEMBER) {
             return IconPeriod.CHRISTMAS;
         }
-        if ((c.get(Calendar.MONTH) == 2) && (c.get(Calendar.DAY_OF_MONTH) >=8) && (c.get(Calendar.DAY_OF_MONTH) <=15)) {
+        if ((c.get(Calendar.MONTH) == Calendar.MARCH) && (c.get(Calendar.DAY_OF_MONTH) >=8) && (c.get(Calendar.DAY_OF_MONTH) <=15)) {
             return IconPeriod.WOMAN_WEEK;
         }
 

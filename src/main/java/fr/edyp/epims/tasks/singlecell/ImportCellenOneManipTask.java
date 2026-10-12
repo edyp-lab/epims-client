@@ -9,6 +9,7 @@
 package fr.edyp.epims.tasks.singlecell;
 
 import fr.edyp.epims.dataaccess.*;
+import fr.edyp.epims.json.CellenOneImportJson;
 import fr.edyp.epims.tasks.util.TasksUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -20,16 +21,23 @@ import org.springframework.web.client.RestTemplate;
 public class ImportCellenOneManipTask extends AbstractAuthenticateDatabaseTask {
 
     private final String URL;
+    private final CellenOneImportJson m_request;
 
     public ImportCellenOneManipTask(AbstractDatabaseCallback callback, String manipName, int studyId) {
+        this(callback, new CellenOneImportJson(manipName, studyId, java.util.Collections.emptyList()));
+    }
+
+    public ImportCellenOneManipTask(AbstractDatabaseCallback callback, CellenOneImportJson request) {
         super(callback, new TaskInfo("Import CellenOne Manipulation", false, null), TokenManager.TOKEN_EPIMS_SERVER);
-        URL = DataManager.getServerURL() + "/api/cellenonemanips/" + manipName + "/import/" + studyId;
+        URL = DataManager.getServerURL() + "/api/cellenonemanips/import";
+        m_request = request;
     }
 
     @Override
     public boolean fetchSecuredData(HttpEntity<String> entity, RestTemplate restTemplate) {
         try {
-            ResponseEntity<String> response = restTemplate.exchange(URL, HttpMethod.POST, entity, String.class);
+            HttpEntity<CellenOneImportJson> requestEntity = new HttpEntity<>(m_request, entity.getHeaders());
+            ResponseEntity<String> response = restTemplate.exchange(URL, HttpMethod.POST, requestEntity, String.class);
             m_taskError = TasksUtil.testStatusCode(response, restTemplate, entity, URL);
             return m_taskError == null;
         } catch (HttpStatusCodeException sce) {

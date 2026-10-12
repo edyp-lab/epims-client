@@ -57,6 +57,10 @@ public class CellenOneManipTableModel extends AbstractTableModel implements Deco
         return null;
     }
 
+    public List<CellenOneManipJson> getManips() {
+        return new ArrayList<>(m_values);
+    }
+
     public void clear() {
         m_values.clear();
         fireTableDataChanged();
